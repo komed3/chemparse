@@ -275,4 +275,32 @@ export default class ChemParse {
 
     }
 
+    /**
+     * Returns the difference in element counts between two chemical formulas.
+     * 
+     * @param a - The first chemical formula.
+     * @param b - The second chemical formula.
+     * @return - An object mapping element symbols to the difference in their counts (a - b).
+     */
+    public static diff ( a: string, b: string ) : ElementCounts {
+
+        const pa = this.parse( a );
+        const pb = this.parse( b );
+
+        const diff: ElementCounts = {};
+        const allKeys = new Set< ElementSymbol >( [
+            ...Object.keys( pa ) as ElementSymbol[],
+            ...Object.keys( pb ) as ElementSymbol[]
+        ] );
+
+        for ( const el of allKeys ) {
+
+            diff[ el ] = ( pa[ el ] || 0 ) - ( pb[ el ] || 0 );
+
+        }
+
+        return diff;
+
+    }
+
 }
