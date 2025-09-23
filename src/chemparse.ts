@@ -55,6 +55,12 @@ const ELEMENT_SYMBOLS: Set< ElementSymbol > = new Set( [
     'Rg', 'Cn', 'Fl', 'Lv', 'Ts', 'Og'
 ] );
 
+/**
+ * @constant NUMBER_REGEX
+ * 
+ * A regular expression to match numbers, including integers, decimals,
+ * and scientific notation.
+ */
 const NUMBER_REGEX = /^(\d*\.?\d+(?:[eE][+-]?\d+)?)/;
 
 export default class ChemParse {
@@ -230,16 +236,42 @@ export default class ChemParse {
      */
     public static validate ( formula: string ) : boolean {
 
+        try { this.parse( formula ) }
+        catch { return false }
+
+        return true;
+
+    }
+
+    /**
+     * Compares two chemical formulas for equality (element distribution).
+     * 
+     * @param a - The first chemical formula.
+     * @param b - The second chemical formula.
+     * @return - True if both formulas represent the same element distribution, false otherwise.
+     */
+    public static compare ( a: string, b: string ) : boolean {
+
         try {
 
-            this.parse( formula );
+            const pa = this.parse( a );
+            const pb = this.parse( b );
+            const keysA = Object.keys( pa ).sort();
+            const keysB = Object.keys( pb ).sort();
+
+            if ( keysA.length !== keysB.length ) return false;
+
+            for ( let i = 0; i < keysA.length; i++ ) {
+
+                if ( ( keysA[ i ] !== keysB[ i ] ) || ( Math.abs(
+                    ( pa as any )[ keysA[ i ] ] - ( pb as any )[ keysB[ i ] ]
+                ) > 1e-12 ) ) return false;
+
+            }
+
             return true;
 
-        } catch {
-
-            return false;
-
-        }
+        } catch { return false }
 
     }
 
