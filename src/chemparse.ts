@@ -55,7 +55,7 @@ const ELEMENT_SYMBOLS: Set< ElementSymbol > = new Set( [
  */
 export type ElementCounts = Partial< Record< ElementSymbol, number > >;
 
-export class ChemParse {
+export default class ChemParse {
 
     /**
      * Parse a chemical formula into its constituent elements and their counts.
