@@ -2,6 +2,15 @@
  * ChemParse
  * A TypeScript library for parsing chemical formulas.
  * 
+ * Handles nested parentheses, decimal and scientific notation,
+ * and dot-separated parts (hydrates).
+ * 
+ * Methods:
+ *  - parse ( formula: string ) : ElementCounts
+ *  - validate ( formula: string ) : boolean
+ *  - compare ( a: string, b: string ) : boolean
+ *  - diff ( a: string, b: string ) : ElementCounts
+ * 
  * @author Paul Köhler (komed3)
  * @license MIT
  * @version 1.0.0
