@@ -21,6 +21,11 @@
   "bugs": {
     "url": "https://github.com/komed3/chemparse/issues"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "types": "./dist/types/index.d.ts",
   "main": "./dist/cjs/index.js",
   "module": "./dist/mjs/index.js",
