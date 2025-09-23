@@ -29,6 +29,13 @@ export type ElementSymbol =
     | 'Rg' | 'Cn' | 'Fl' | 'Lv' | 'Ts' | 'Og';
 
 /**
+ * @typedef ElementCounts
+ * 
+ * An object mapping element symbols to their counts in a chemical formula.
+ */
+export type ElementCounts = Partial< Record< ElementSymbol, number > >;
+
+/**
  * @constant ELEMENT_SYMBOLS
  * 
  * A set of all valid chemical element symbols for quick lookup.
@@ -48,14 +55,110 @@ const ELEMENT_SYMBOLS: Set< ElementSymbol > = new Set( [
     'Rg', 'Cn', 'Fl', 'Lv', 'Ts', 'Og'
 ] );
 
-/**
- * @typedef ElementCounts
- * 
- * An object mapping element symbols to their counts in a chemical formula.
- */
-export type ElementCounts = Partial< Record< ElementSymbol, number > >;
+const NUMBER_REGEX = /^(\d*\.?\d+(?:[eE][+-]?\d+)?)/;
 
 export default class ChemParse {
+
+    /**
+     * Core parsing logic for a single segment of a chemical formula (without
+     * leading coefficients or dot-separated parts).
+     *
+     * @param str - The formula segment to parse.
+     * @return - An object mapping element symbols to their counts.
+     * @throws {Error} If the segment contains unknown element symbols or is malformed.
+     */
+    private static _parseCore ( str: string ) : ElementCounts {
+
+        const stack: ElementCounts[] = [ {} ];
+        let i = 0;
+
+        while ( i < str.length ) {
+
+            const ch = str[ i ];
+
+            // Opening bracket
+            if ( ch === '(' || ch === '[' || ch === '{' ) {
+
+                stack.push( {} );
+                i++;
+
+                continue;
+
+            }
+
+            // Closing parenthesis -> optional decimal/scientific multiplier after
+            if ( ch === ')' || ch === ']' || ch === '}' ) {
+
+                const remainder = str.slice( ++i );
+                const numMatch = remainder.match( NUMBER_REGEX );
+                const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
+
+                if ( numMatch ) i += numMatch[ 1 ].length;
+
+                if ( stack.length === 1 ) throw new Error (
+                    `Unmatched closing bracket at position ${ ( i - 1 ) } in "${ str }"`
+                );
+
+                const popped = stack.pop()!;
+                const top = stack[ stack.length - 1 ];
+
+                for ( const [ el, cnt ] of Object.entries( popped ) ) {
+
+                    top[ el as ElementSymbol ] = (
+                        top[ el as ElementSymbol ] || 0
+                    ) + cnt * multiplier;
+
+                }
+
+                continue;
+
+            }
+
+            // Element symbol: uppercase letter followed by optional lowercase letters
+            if ( /[A-Z]/.test( ch ) ) {
+
+                let j = i + 1;
+
+                while ( j < str.length && /[a-z]/.test( str[ j ] ) ) j++;
+
+                const element = str.slice( i, j );
+                i = j;
+
+                // Optional counter (can be decimal / scientific)
+                const remainder = str.slice( i );
+                const numMatch = remainder.match( NUMBER_REGEX );
+                const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
+
+                if ( numMatch ) i += numMatch[ 1 ].length;
+
+                if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error (
+                    `Unknown element symbol "${ element }" in formula segment "${ str }"`
+                );
+
+                const top = stack[ stack.length - 1 ];
+
+                top[ element as ElementSymbol ] = (
+                    top[ element as ElementSymbol ] || 0
+                ) + count;
+
+                continue;
+
+            }
+
+            // Anything else is invalid
+            throw new Error (
+                `Invalid character "${ ch }" at position ${ i } in "${ str }"`
+            );
+
+        }
+
+        if ( stack.length !== 1 ) throw new Error (
+            `Unmatched opening bracket in formula segment "${ str }"`
+        );
+
+        return stack[ 0 ];
+
+    }
 
     /**
      * Parse a chemical formula into its constituent elements and their counts.
@@ -81,13 +184,12 @@ export default class ChemParse {
             .filter( p => p.length > 0 );
 
         const total: ElementCounts = {};
-        const numberRegex = /^(\d*\.?\d+(?:[eE][+-]?\d+)?)/;
 
         for ( let part of parts ) {
 
             // Leading coefficients (can be decimal / scientific)
             let leadingCoef = 1;
-            const leadingMatch = part.match( numberRegex );
+            const leadingMatch = part.match( NUMBER_REGEX );
 
             if ( leadingMatch && leadingMatch.index === 0 ) {
 
@@ -99,13 +201,13 @@ export default class ChemParse {
 
             }
 
-            const partCounts = this._parseCore( part, numberRegex );
+            const partCounts = this._parseCore( part );
 
             // Merge parts and scale by leadingCoef
             for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
 
                 if ( ! ELEMENT_SYMBOLS.has( el as ElementSymbol ) ) throw new Error (
-                    `Unknown element symbol "${el}" in formula "${formula}"`
+                    `Unknown element symbol "${ el }" in formula "${ formula }"`
                 );
 
                 total[ el as ElementSymbol ] = (
