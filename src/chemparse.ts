@@ -81,6 +81,39 @@ export default class ChemParse {
         const total: ElementCounts = {};
         const numberRegex = /^(\d*\.?\d+(?:[eE][+-]?\d+)?)/;
 
+        for ( let part of parts ) {
+
+            // Leading coefficients (can be decimal / scientific)
+            let leadingCoef = 1;
+            const leadingMatch = part.match( numberRegex );
+
+            if ( leadingMatch && leadingMatch.index === 0 ) {
+
+                leadingCoef = parseFloat( leadingMatch[ 1 ] );
+                part = part.slice( leadingMatch[ 1 ].length );
+
+                // Part is just a number -> nothing further to do
+                if ( part.length === 0 ) continue;
+
+            }
+
+            const partCounts = this._parseCore( part, numberRegex );
+
+            // Merge parts and scale by leadingCoef
+            for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
+
+                if ( ! ELEMENT_SYMBOLS.has( el as ElementSymbol ) ) throw new Error (
+                    `Unknown element symbol "${el}" in formula "${formula}"`
+                );
+
+                total[ el as ElementSymbol ] = (
+                    total[ el as ElementSymbol ] || 0
+                ) + cnt * leadingCoef;
+
+            }
+
+        }
+
         return total;
 
     }
