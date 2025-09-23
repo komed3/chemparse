@@ -62,6 +62,8 @@ export default class ChemParse {
      * 
      * @param formula - The chemical formula to parse (e.g., "H2O", "C6H12O6").
      * @return - An object mapping element symbols to their counts.
+     * @throws {TypeError} If the input is not a string.
+     * @throws {Error} If the formula contains unknown element symbols or is malformed.
      */
     public static parse ( formula: string ) : ElementCounts {
 
@@ -115,6 +117,27 @@ export default class ChemParse {
         }
 
         return total;
+
+    }
+
+    /**
+     * Validates a chemical formula.
+     * 
+     * @param formula - The chemical formula to validate.
+     * @return - True if the formula is valid, false otherwise.
+     */
+    public static validate ( formula: string ) : boolean {
+
+        try {
+
+            this.parse( formula );
+            return true;
+
+        } catch {
+
+            return false;
+
+        }
 
     }
 
