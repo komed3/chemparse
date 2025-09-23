@@ -190,11 +190,8 @@ export default class ChemParse {
         );
 
         // Normalize and split into parts by Unicode middle dot (·)
-        const normalized = formula
+        const parts = formula
             .replace( /\s+/g, '' )
-            .replace( /\u00B7/g, '·' );
-
-        const parts = normalized
             .split( '·' )
             .filter( p => p.length > 0 );
 
