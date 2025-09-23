@@ -41,5 +41,8 @@
     "build:mjs": "tsc --project tsconfig.mjs.json",
     "build:types": "tsc --project tsconfig.d.json",
     "build": "npm run build:cjs && npm run build:mjs && npm run build:types"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
   }
 }
