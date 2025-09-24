@@ -39,17 +39,6 @@ const result = ChemParse.parse( 'K4[Fe(CN)6]' );
 console.log( result ); // { K: 4, Fe: 1, C: 6, N: 6 }
 ```
 
-Browser (via jsDelivr CDN)
-
-```html
-<script type="module">
-  import ChemParse from 'https://cdn.jsdelivr.net/npm/chemparse/dist/mjs/chemparse.js';
-
-  const result = ChemParse.parse( 'Al2(SO4)3' );
-  console.log( result ); // { Al: 2, S: 3, O: 12 }
-</script>
-```
-
 ## API
 
 **`ChemParse.parse ( formula: string ) : Record< ElementSymbol, number >`**  
