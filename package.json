@@ -11,7 +11,8 @@
   "homepage": "https://github.com/komed3/chemparse",
   "keywords": [
     "chemistry",
-    "chemical-formula",
+    "chemistry-formulas",
+    "formula-parser",
     "parser"
   ],
   "repository": {
