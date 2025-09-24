@@ -27,19 +27,19 @@
     "README.md",
     "LICENSE"
   ],
-  "types": "./dist/types/chemparse.d.ts",
-  "main": "./dist/cjs/chemparse.js",
-  "module": "./dist/mjs/chemparse.js",
+  "types": "./dist/chemparse.d.ts",
+  "main": "./dist/chemparse.cjs",
+  "module": "./dist/chemparse.mjs",
   "exports": {
     ".": {
-      "types": "./dist/types/chemparse.d.ts",
-      "require": "./dist/cjs/chemparse.js",
-      "import": "./dist/mjs/chemparse.js"
+      "types": "./dist/chemparse.d.ts",
+      "require": "./dist/chemparse.cjs",
+      "import": "./dist/chemparse.mjs"
     }
   },
   "scripts": {
-    "build:cjs": "tsc --project tsconfig.cjs.json",
-    "build:mjs": "tsc --project tsconfig.mjs.json",
+    "build:cjs": "tsc --project tsconfig.cjs.json && mv ./dist/chemparse.js ./dist/chemparse.cjs",
+    "build:mjs": "tsc --project tsconfig.mjs.json && mv ./dist/chemparse.js ./dist/chemparse.mjs",
     "build:types": "tsc --project tsconfig.d.json",
     "build": "npm run build:cjs && npm run build:mjs && npm run build:types"
   },
