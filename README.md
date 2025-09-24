@@ -1,6 +1,6 @@
 # ChemParse
 
-**ChemParse** is a TypeScript library for parsing chemical formulas.
+**ChemParse** is a lightweight TypeScript library for parsing chemical formulas.
 
 It supports nested parentheses, decimal and scientific notation, dot-separated hydrate parts, and strict validation of IUPAC element symbols.
 
@@ -37,6 +37,19 @@ import ChemParse from 'chemparse';
 
 const result = ChemParse.parse( 'K4[Fe(CN)6]' );
 console.log( result ); // { K: 4, Fe: 1, C: 6, N: 6 }
+```
+
+The package can also be used in browser environments.  
+To do so, simply load the script as UMD or ESM from jsDelivr:  
+https://jsdelivr.com/package/npm/chemparse
+
+```html
+<script type="module">
+  import ChemParse from 'https://cdn.jsdelivr.net/npm/chemparse@1.0.1/+esm'
+
+  const result = ChemParse.parse( 'Al2(SO4)3' );
+  console.log( result ); // { Al: 2, S: 3, O: 12 }
+</script>
 ```
 
 ## API
