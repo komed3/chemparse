@@ -314,6 +314,8 @@ export default class ChemParse {
 
         }
 
+        if ( charge !== undefined ) total.charge = charge;
+
         return total;
 
     }
