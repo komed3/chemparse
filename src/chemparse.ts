@@ -336,4 +336,35 @@ export default class ChemParse {
 
     }
 
+    public static diff( a: string, b: string ) : ChemParseResult {
+
+        const pa = this.parse( a );
+        const pb = this.parse( b );
+
+        const diff: ChemParseResult = { elementCounts: {} };
+        const allKeys = new Set< ElementSymbol >( [
+            ...Object.keys( pa.elementCounts ) as ElementSymbol[],
+            ...Object.keys( pb.elementCounts ) as ElementSymbol[]
+        ] );
+
+        for ( const el of allKeys ) {
+
+            diff.elementCounts[ el ] =
+                ( pa.elementCounts[ el ] || 0 ) -
+                ( pb.elementCounts[ el ] || 0 );
+
+        }
+
+        if ( pa.charge || pb.charge ) {
+
+            diff.charge =
+                ( pa.charge || 0 ) -
+                ( pb.charge || 0 );
+
+        }
+
+        return diff;
+
+    }
+
 }
