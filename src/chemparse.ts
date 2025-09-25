@@ -315,12 +315,12 @@ export default class ChemParse {
 
         }
 
-        // Sort elements alphabetically in the result
-        const elementCounts: ElementCounts = Object.keys( totalCounts )
-            .sort().reduce( ( a, k ) => {
-                ( a as any )[ k ] = totalCounts[ k as ElementSymbol ];
-                return a;
-            }, {} );
+        // Sort elements by order in the periodic table
+        const elementCounts: ElementCounts = {};
+
+        ELEMENT_SYMBOLS.forEach( el => {
+            if ( el in totalCounts ) elementCounts[ el ] = totalCounts[ el ];
+        } );
 
         // Return result with or without charge
         return charge !== undefined
