@@ -361,7 +361,8 @@ export default class ChemParse {
 
             }
 
-            return true;
+            // Charges must also match (or both undefined)
+            return ( pa.charge ?? 0 ) === ( pb.charge ?? 0 );
 
         } catch { return false }
 
@@ -380,9 +381,9 @@ export default class ChemParse {
         const pb = this.parse( b );
 
         const diff: ElementCounts = {};
-        const allKeys = new Set< ElementSymbol >( [
-            ...Object.keys( pa ) as ElementSymbol[],
-            ...Object.keys( pb ) as ElementSymbol[]
+        const allKeys = new Set< keyof ElementCounts >( [
+            ...Object.keys( pa ) as ( keyof ElementCounts )[],
+            ...Object.keys( pb ) as ( keyof ElementCounts )[]
         ] );
 
         for ( const el of allKeys ) {
