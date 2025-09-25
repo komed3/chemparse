@@ -76,6 +76,7 @@ Returns the difference in element counts and ionic charge between two formulas (
 - Hydrates and dot notation: `CuSO4·5H2O`, `CCl3_CH(OH)2`, `2.5H2O`, `.5H2O`
 - Parentheses and nested groups: `Ca(OH)2`, `(NH4)2SO4`, `K4[Fe(CN)6]`, `Al2(SO4)3`
 - Decimal and scientific notation: `C1.5O3`, `H2e-1O1e-1`, `Mg(OH)1.5`, `Fe2(SO4)1.5`
+Element lists with commas: `Fe2(S,O4)`, `Al2(S,O4)3`
 - Leading coefficients: `2H2O`, `5·H2O`
 - Ionic charges: `SO4^2-`, `NH4^+`, `CH3COO^-`, `Fe(CN)6^3-`
 
@@ -84,31 +85,34 @@ Returns the difference in element counts and ionic charge between two formulas (
 ```js
 import ChemParse from 'chemparse';
 
-console.log( ChemParse.parse( 'CuSO4·5H2O' ) );
+ChemParse.parse( 'CuSO4·5H2O' );
 // => { elementCounts: { H: 10, O: 9, S: 1, Cu: 1 } }
 
-console.log( ChemParse.parse( 'K4[Fe(CN)6]' ) );
+ChemParse.parse( 'K4[Fe(CN)6]' );
 // => { elementCounts: { C: 6, N: 6, K: 4, Fe: 1 } }
 
-console.log( ChemParse.parse( 'C1.5O3' ) );
+ChemParse.parse( 'C1.5O3' );
 // => { elementCounts: { C: 1.5, O: 1 } }
 
-console.log( ChemParse.parse( 'H2e-1O1e-1' ) );
+ChemParse.parse( 'H2e-1O1e-1' );
 // => { elementCounts: { H: 0.2, O: 0.1 } }
 
-console.log( ChemParse.parse( 'CH3COO^-' ) );
+ChemParse.parse( 'CH3COO^-' );
 // => { elementCounts: { H: 3, C: 2, O: 2 }, charge: -1 }
 
-console.log( ChemParse.parse( 'Fe(CN)6^3-' ) );
+ChemParse.parse( 'Fe(CN)6^3-' );
 // => { elementCounts: { C: 6, N: 6, Fe: 1 }, charge: -3 }
 
-console.log( ChemParse.validate( 'Fe2(SO4)1.5' ) );
+ChemParse.parse( 'Al2(S,O4)3' );
+// => { elementCounts: { O: 12, Al: 2, S: 3 } }
+
+ChemParse.validate( 'Fe2(SO4)1.5' );
 // => true
 
-console.log( ChemParse.compare( 'H2O', 'OH2' ) );
+ChemParse.compare( 'H2O', 'OH2' );
 // => true
 
-console.log( ChemParse.diff( 'C6H12O6', 'C1.5O3' ) );
+ChemParse.diff( 'C6H12O6', 'C1.5O3' );
 // => { elementCounts: { H: 12, C: 4.5, O: 0 } }
 ```
 
