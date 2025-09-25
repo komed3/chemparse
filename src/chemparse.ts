@@ -41,17 +41,11 @@ export type ElementSymbol =
  * @typedef ElementCounts
  * 
  * An object mapping element symbols to their counts in a chemical formula.
+ * Includes an optional 'charge' property for ionic compounds.
  */
-export type ElementCounts = Partial< Record< ElementSymbol, number > >;
-
-/**
- * @typedef ElementCountsWithCharge
- * 
- * An extension of ElementCounts that includes an optional charge property.
- */
-export interface ElementCountsWithCharge extends ElementCounts {
-    charge?: number; // e.g. -2, +1, 3, etc.
-}
+export type ElementCounts = Partial< Record< ElementSymbol, number > > & {
+    charge?: number;
+};
 
 /**
  * @constant ELEMENT_SYMBOLS
@@ -239,11 +233,37 @@ export default class ChemParse {
             `Formula must be a string.`
         );
 
-        // Normalize and split into parts by Unicode middle dot (·)
-        const parts = formula
+        let charge: number | undefined;
+        let mainFormula = formula
             .replace( /\s+/g, '' )
-            .replace( /([0-9]),([0-9])/, '$1.$2' )
-            .replace( /,/, '' )
+            .replace( /([0-9]),([0-9])/g, '$1.$2' )
+            .replace( /,/g, '' );
+
+        // Extract charge at the end (caret or superscript)
+        const chargeMatch = mainFormula.match( CHARGE_REGEX );
+
+        if ( chargeMatch ) {
+
+            if ( chargeMatch[ 1 ] || chargeMatch[ 2 ] ) {
+
+                // Caret notation: ^2-, ^+, ^3+, ^-, ^+2, ^-3
+                const n = chargeMatch[ 1 ] ? parseInt( chargeMatch[ 1 ], 10 ) : 1;
+                charge = chargeMatch[ 2 ] === '+' ? n : -n;
+                mainFormula = mainFormula.slice( 0, chargeMatch.index );
+
+            } else if ( chargeMatch[ 3 ] ) {
+
+                // Unicode superscript: ²⁻, ³⁺, ⁻, ⁺
+                charge = this._parseSuperscriptCharge( chargeMatch[ 3 ] );
+                mainFormula = mainFormula.slice( 0, chargeMatch.index );
+
+            }
+
+        }
+
+        // Split formula into parts by Unicode middle dot (·) or "_"
+        const parts = mainFormula
+            .replace( /_|\u00B7/g, '·' )
             .split( '·' )
             .filter( p => p.length > 0 );
 
