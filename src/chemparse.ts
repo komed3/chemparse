@@ -90,7 +90,7 @@ const NUMBER_REGEX = /^(\d*\.?\d+(?:[eE][+-]?\d+)?)/;
  * A regular expression to match charge notation at the end of a formula.
  * Supports formats like "^2+", "3-", "⁺", "²⁻", etc.
  */
-const CHARGE_REGEX = /(?:\^([+-]?\d+)?([+-]))$|(?:([⁺⁻\d]+))$/u;
+const CHARGE_REGEX = /(?:\^([0-9]+)?([+-]))$|(?:([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻]))$/u;
 
 /**
  * @constant SUPERSCRIPT_MAP
