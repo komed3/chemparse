@@ -238,4 +238,62 @@ export default class ChemParse {
 
     }
 
+    public static parse ( formula: string ) : ChemParseResult {
+
+        if ( typeof formula !== 'string' ) throw new TypeError (
+            `Formula must be a string.`
+        );
+
+        let mainFormula = formula
+            .replace( /\s+/g, '' )
+            .replace( /([0-9]),([0-9])/g, '$1.$2' )
+            .replace( /,/g, '' );
+
+        // Extract charge at the end (caret or superscript)
+        const chargeMatch = mainFormula.match( CHARGE_REGEX );
+        const charge = this._parseCharge( chargeMatch );
+
+        if ( chargeMatch ) mainFormula = mainFormula.slice( 0, chargeMatch.index );
+
+        // Normalize and split into parts by Unicode middle dot (·) or "_"
+        const parts = mainFormula
+            .replace( /_|\u00B7/g, '·' )
+            .split( '·' )
+            .filter( p => p.length > 0 );
+
+        const elementCounts: ElementCounts = {};
+
+        for ( let part of parts ) {
+
+            // Leading coefficients (can be decimal / scientific)
+            let leadingCoef = 1;
+            const leadingMatch = part.match( NUMBER_REGEX );
+
+            if ( leadingMatch && leadingMatch.index === 0 ) {
+
+                leadingCoef = parseFloat( leadingMatch[ 1 ] );
+                part = part.slice( leadingMatch[ 1 ].length );
+
+                if ( part.length === 0 ) continue;
+
+            }
+
+            const partCounts = this._parseCore( part );
+
+            for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
+
+                elementCounts[ el as ElementSymbol ] = (
+                    elementCounts[ el as ElementSymbol ] || 0
+                ) + cnt * leadingCoef;
+
+            }
+
+        }
+
+        return charge !== undefined
+            ? { elementCounts, charge }
+            : { elementCounts };
+
+    }
+
 }
