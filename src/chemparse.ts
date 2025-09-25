@@ -109,42 +109,11 @@ const SUPERSCRIPT_MAP: Record<string, string> = {
  */
 export default class ChemParse {
 
-    private static _mergeCounts ( tgt: ElementCounts, src: ElementCounts, factor = 1 ) : void {
+    private static _chargeNumber ( match: RegExpMatchArray ) : number {
 
-        for ( const [ el, cnt ] of Object.entries( src ) ) {
+        const n = match[ 1 ] ? parseInt( match[ 1 ], 10 ) : 1;
 
-            tgt[ el as ElementSymbol ] = (
-                tgt[ el as ElementSymbol ] || 0
-            ) + cnt * factor;
-
-        }
-
-    }
-
-    private static _parseElementList ( list: string ) : string[] {
-
-        const result: string[] = [];
-        let buf = '', depth = 0;
-
-        for ( let i = 0; i < list.length; ++i ) {
-
-            const ch = list[ i ];
-
-            if ( ch === '(' || ch === '[' || ch === '{' ) depth++;
-            if ( ch === ')' || ch === ']' || ch === '}' ) depth--;
-
-            if ( ch === ',' && depth === 0 ) {
-
-                if ( buf ) result.push( buf );
-                buf = '';
-
-            } else buf += ch;
-
-        }
-
-        if ( buf ) result.push( buf );
-
-        return result;
+        return match[ 2 ] === '+' ? n : -n;
 
     }
 
@@ -152,15 +121,12 @@ export default class ChemParse {
 
         if ( ! match ) return undefined;
 
-        if ( match[ 1 ] || match[ 2 ] ) {
+        // Caret notation: ^2-, ^+, ^3+, ^-, ^+2, ^-3
+        if ( match[ 1 ] || match[ 2 ] ) return this._chargeNumber( match );
 
-            // Caret notation: ^2-, ^+, ^3+, ^-, ^+2, ^-3
-            const n = match[ 1 ] ? parseInt( match[ 1 ], 10 ) : 1;
-            return match[ 2 ] === '+' ? n : -n;
+        // Unicode superscript: ²⁻, ³⁺, ⁻, ⁺
+        if ( match[ 3 ] ) {
 
-        } else if ( match[ 3 ] ) {
-
-            // Unicode superscript: ²⁻, ³⁺, ⁻, ⁺
             let normal = '';
 
             for ( const ch of match[ 3 ] ) {
@@ -171,12 +137,7 @@ export default class ChemParse {
 
             const m = normal.match( /^(\d*)([+-])$/ );
 
-            if ( m ) {
-
-                const n = m[ 1 ] ? parseInt( m[ 1 ], 10 ) : 1;
-                return m[ 2 ] === '+' ? n : -n;
-
-            }
+            if ( m ) return this._chargeNumber( m );
 
         }
 
