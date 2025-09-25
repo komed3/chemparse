@@ -101,6 +101,29 @@ const SUPERSCRIPT_MAP: Record<string, string> = {
 
 export default class ChemParse {
 
+    private static _parseSuperscriptCharge ( s: string ) : number | undefined {
+
+        if ( ! s ) return undefined;
+
+        let normal = '';
+
+        for ( const ch of s ) if ( SUPERSCRIPT_MAP[ ch ] ) normal += SUPERSCRIPT_MAP[ ch ];
+
+        if ( ! normal ) return undefined;
+
+        const match = normal.match( /^(\d*)([+-])$/ );
+
+        if ( match ) {
+
+            const n = match[ 1 ] ? parseInt( match[ 1 ], 10 ) : 1;
+            return match[ 2 ] === '+' ? n : -n;
+
+        }
+
+        return undefined;
+
+    }
+
     /**
      * Core parsing logic for a single segment of a chemical formula (without
      * leading coefficients or dot-separated parts).
@@ -219,6 +242,8 @@ export default class ChemParse {
         // Normalize and split into parts by Unicode middle dot (·)
         const parts = formula
             .replace( /\s+/g, '' )
+            .replace( /([0-9]),([0-9])/, '$1.$2' )
+            .replace( /,/, '' )
             .split( '·' )
             .filter( p => p.length > 0 );
 
