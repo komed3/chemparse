@@ -286,7 +286,7 @@ export default class ChemParse {
             .split( '·' )
             .filter( p => p.length > 0 );
 
-        const elementCounts: ElementCounts = {};
+        const totalCounts: ElementCounts = {};
 
         for ( let part of parts ) {
 
@@ -307,14 +307,22 @@ export default class ChemParse {
 
             for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
 
-                elementCounts[ el as ElementSymbol ] = (
-                    elementCounts[ el as ElementSymbol ] || 0
+                totalCounts[ el as ElementSymbol ] = (
+                    totalCounts[ el as ElementSymbol ] || 0
                 ) + cnt * leadingCoef;
 
             }
 
         }
 
+        // Sort elements alphabetically in the result
+        const elementCounts: ElementCounts = Object.keys( totalCounts )
+            .sort().reduce( ( a, k ) => {
+                ( a as any )[ k ] = totalCounts[ k as ElementSymbol ];
+                return a;
+            }, {} );
+
+        // Return result with or without charge
         return charge !== undefined
             ? { elementCounts, charge }
             : { elementCounts };
@@ -336,7 +344,27 @@ export default class ChemParse {
 
     }
 
-    public static diff( a: string, b: string ) : ChemParseResult {
+    /**
+     * Compares two chemical formulas for equivalence.
+     *
+     * @param a - The first chemical formula.
+     * @param b - The second chemical formula.
+     * @return - True if the formulas are equivalent, false otherwise.
+     */
+    public static compare ( a: string, b: string ) : boolean {
+
+        return JSON.stringify( this.parse( a ) ) === JSON.stringify( this.parse( b ) );
+
+    }
+
+    /**
+     * Computes the difference in element counts and charge between two formulas.
+     * 
+     * @param a - The first chemical formula.
+     * @param b - The second chemical formula.
+     * @return - An object representing the difference in element counts and charge.
+     */
+    public static diff ( a: string, b: string ) : ChemParseResult {
 
         const pa = this.parse( a );
         const pb = this.parse( b );
