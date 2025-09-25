@@ -45,6 +45,15 @@ export type ElementSymbol =
 export type ElementCounts = Partial< Record< ElementSymbol, number > >;
 
 /**
+ * @typedef ElementCountsWithCharge
+ * 
+ * An extension of ElementCounts that includes an optional charge property.
+ */
+export interface ElementCountsWithCharge extends ElementCounts {
+    charge?: number; // e.g. -2, +1, 3, etc.
+}
+
+/**
  * @constant ELEMENT_SYMBOLS
  * 
  * A set of all valid chemical element symbols for quick lookup.
@@ -71,6 +80,24 @@ const ELEMENT_SYMBOLS: Set< ElementSymbol > = new Set( [
  * and scientific notation.
  */
 const NUMBER_REGEX = /^(\d*\.?\d+(?:[eE][+-]?\d+)?)/;
+
+/**
+ * @constant CHARGE_REGEX
+ * 
+ * A regular expression to match charge notation at the end of a formula.
+ * Supports formats like "^2+", "3-", "⁺", "²⁻", etc.
+ */
+const CHARGE_REGEX = /(?:\^([+-]?\d+)?([+-]))$|(?:([⁺⁻\d]+))$/u;
+
+/**
+ * @constant SUPERSCRIPT_MAP
+ * 
+ * A mapping of Unicode superscript characters to their normal equivalents.
+ */
+const SUPERSCRIPT_MAP: Record<string, string> = {
+    '⁺': '+', '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3',
+    '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9'
+};
 
 export default class ChemParse {
 
