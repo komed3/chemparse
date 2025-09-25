@@ -109,6 +109,12 @@ const SUPERSCRIPT_MAP: Record<string, string> = {
  */
 export default class ChemParse {
 
+    /**
+     * Converts a regex match of a charge into a numeric value.
+     * 
+     * @param match - The regex match array.
+     * @return - The numeric charge value.
+     */
     private static _chargeNumber ( match: RegExpMatchArray ) : number {
 
         const n = match[ 1 ] ? parseInt( match[ 1 ], 10 ) : 1;
@@ -117,6 +123,12 @@ export default class ChemParse {
 
     }
 
+    /**
+     * Parses the charge from a regex match.
+     *
+     * @param match - The regex match array.
+     * @return - The numeric charge value, or undefined if no charge is found.
+     */
     private static _parseCharge ( match: RegExpMatchArray | null ) : number | undefined {
 
         if ( ! match ) return undefined;
@@ -145,6 +157,12 @@ export default class ChemParse {
 
     }
 
+    /**
+     * Core parser for a formula segment without leading coefficients or charges.
+     *
+     * @param str - The formula segment to parse.
+     * @return - An object mapping element symbols to their counts.
+     */
     private static _parseCore ( str: string ) : ElementCounts {
 
         const stack: ElementCounts[] = [ {} ];
@@ -238,6 +256,13 @@ export default class ChemParse {
 
     }
 
+    /**
+     * Parses a chemical formula into its constituent elements and counts.
+     *
+     * @param formula - The chemical formula to parse.
+     * @return - An object containing element counts and optional charge.
+     * @throws - If the formula is invalid.
+     */
     public static parse ( formula: string ) : ChemParseResult {
 
         if ( typeof formula !== 'string' ) throw new TypeError (
@@ -293,6 +318,21 @@ export default class ChemParse {
         return charge !== undefined
             ? { elementCounts, charge }
             : { elementCounts };
+
+    }
+
+    /**
+     * Validates a chemical formula.
+     * 
+     * @param formula - The chemical formula to validate.
+     * @return - True if the formula is valid, false otherwise.
+     */
+    public static validate ( formula: string ) : boolean {
+
+        try { this.parse( formula ) }
+        catch { return false }
+
+        return true;
 
     }
 
