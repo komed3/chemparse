@@ -3,7 +3,8 @@
  * A TypeScript library for parsing chemical formulas.
  * 
  * Handles nested parentheses, decimal and scientific notation,
- * and dot-separated parts (hydrates).
+ * dot-separated parts (hydrates), leading coefficients, and
+ * ionic charges.
  * 
  * Methods:
  *  - parse ( formula: string ) : ElementCounts
@@ -13,7 +14,7 @@
  * 
  * @author Paul Köhler (komed3)
  * @license MIT
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 'use strict';
@@ -93,8 +94,19 @@ const SUPERSCRIPT_MAP: Record<string, string> = {
     '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9'
 };
 
+/**
+ * ChemParse
+ * 
+ * A class providing static methods to parse and analyze chemical formulas.
+ */
 export default class ChemParse {
 
+    /**
+     * Convert a superscript charge string to a normal integer charge.
+     *
+     * @param s - The superscript charge string (e.g., "²⁻", "³⁺", "⁺", "⁻").
+     * @return - The integer charge (e.g., -2, +3, +1, -1) or undefined if invalid.
+     */
     private static _parseSuperscriptCharge ( s: string ) : number | undefined {
 
         if ( ! s ) return undefined;
