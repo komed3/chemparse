@@ -3,8 +3,8 @@
  * A TypeScript library for parsing chemical formulas.
  * 
  * Handles nested parentheses, decimal and scientific notation,
- * dot-separated parts (hydrates), leading coefficients, and
- * ionic charges.
+ * dot-separated parts (hydrates), leading coefficients, element lists
+ * with commas, and ionic charges (caret and superscript notation).
  * 
  * Methods:
  *  - parse ( formula: string ) : ElementCounts
@@ -42,9 +42,17 @@ export type ElementSymbol =
  * @typedef ElementCounts
  * 
  * An object mapping element symbols to their counts in a chemical formula.
- * Includes an optional 'charge' property for ionic compounds.
  */
-export type ElementCounts = Partial< Record< ElementSymbol, number > > & {
+export type ElementCounts = Partial< Record< ElementSymbol, number > >;
+
+/**
+ * @interface ChemParseResult
+ * 
+ * The result of parsing a chemical formula, including element counts
+ * and optional ionic charge.
+ */
+export interface ChemParseResult {
+    elementCounts: ElementCounts;
     charge?: number;
 };
 
@@ -101,298 +109,46 @@ const SUPERSCRIPT_MAP: Record<string, string> = {
  */
 export default class ChemParse {
 
-    /**
-     * Convert a superscript charge string to a normal integer charge.
-     *
-     * @param s - The superscript charge string (e.g., "²⁻", "³⁺", "⁺", "⁻").
-     * @return - The integer charge (e.g., -2, +3, +1, -1) or undefined if invalid.
-     */
-    private static _parseSuperscriptCharge ( s: string ) : number | undefined {
+    private static _mergeCounts (
+        target: ElementCounts,
+        source: ElementCounts,
+        factor = 1
+    ) : void {
 
-        if ( ! s ) return undefined;
+        for ( const [ el, cnt ] of Object.entries( source ) ) {
 
-        let normal = '';
-
-        for ( const ch of s ) if ( SUPERSCRIPT_MAP[ ch ] ) normal += SUPERSCRIPT_MAP[ ch ];
-
-        if ( ! normal ) return undefined;
-
-        const match = normal.match( /^(\d*)([+-])$/ );
-
-        if ( match ) {
-
-            const n = match[ 1 ] ? parseInt( match[ 1 ], 10 ) : 1;
-            return match[ 2 ] === '+' ? n : -n;
+            target[ el as ElementSymbol ] = (
+                target[ el as ElementSymbol ] || 0
+            ) + cnt * factor;
 
         }
 
-        return undefined;
-
     }
 
-    /**
-     * Core parsing logic for a single segment of a chemical formula (without
-     * leading coefficients or dot-separated parts).
-     *
-     * @param str - The formula segment to parse.
-     * @return - An object mapping element symbols to their counts.
-     * @throws {Error} If the segment contains unknown element symbols or is malformed.
-     */
-    private static _parseCore ( str: string ) : ElementCounts {
+    private static _parseElementList ( list: string ) : string[] {
 
-        const stack: ElementCounts[] = [ {} ];
-        let i = 0;
+        const result: string[] = [];
+        let buf = '', depth = 0;
 
-        while ( i < str.length ) {
+        for ( let i = 0; i < list.length; ++i ) {
 
-            const ch = str[ i ];
+            const ch = list[ i ];
 
-            // Opening bracket
-            if ( ch === '(' || ch === '[' || ch === '{' ) {
+            if ( ch === '(' || ch === '[' || ch === '{' ) depth++;
+            if ( ch === ')' || ch === ']' || ch === '}' ) depth--;
 
-                stack.push( {} );
-                i++;
+            if ( ch === ',' && depth === 0 ) {
 
-                continue;
+                if ( buf ) result.push( buf );
+                buf = '';
 
-            }
-
-            // Closing parenthesis -> optional decimal/scientific multiplier after
-            if ( ch === ')' || ch === ']' || ch === '}' ) {
-
-                const remainder = str.slice( ++i );
-                const numMatch = remainder.match( NUMBER_REGEX );
-                const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
-
-                if ( numMatch ) i += numMatch[ 1 ].length;
-
-                if ( stack.length === 1 ) throw new Error (
-                    `Unmatched closing bracket at position ${ ( i - 1 ) } in "${ str }"`
-                );
-
-                const popped = stack.pop()!;
-                const top = stack[ stack.length - 1 ];
-
-                for ( const [ el, cnt ] of Object.entries( popped ) ) {
-
-                    top[ el as ElementSymbol ] = (
-                        top[ el as ElementSymbol ] || 0
-                    ) + cnt * multiplier;
-
-                }
-
-                continue;
-
-            }
-
-            // Element symbol: uppercase letter followed by optional lowercase letters
-            if ( /[A-Z]/.test( ch ) ) {
-
-                let j = i + 1;
-
-                while ( j < str.length && /[a-z]/.test( str[ j ] ) ) j++;
-
-                const element = str.slice( i, j );
-                i = j;
-
-                // Optional counter (can be decimal / scientific)
-                const remainder = str.slice( i );
-                const numMatch = remainder.match( NUMBER_REGEX );
-                const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
-
-                if ( numMatch ) i += numMatch[ 1 ].length;
-
-                if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error (
-                    `Unknown element symbol "${ element }" in formula segment "${ str }"`
-                );
-
-                const top = stack[ stack.length - 1 ];
-
-                top[ element as ElementSymbol ] = (
-                    top[ element as ElementSymbol ] || 0
-                ) + count;
-
-                continue;
-
-            }
-
-            // Anything else is invalid
-            throw new Error (
-                `Invalid character "${ ch }" at position ${ i } in "${ str }"`
-            );
+            } else buf += ch;
 
         }
 
-        if ( stack.length !== 1 ) throw new Error (
-            `Unmatched opening bracket in formula segment "${ str }"`
-        );
+        if ( buf ) result.push( buf );
 
-        return stack[ 0 ];
-
-    }
-
-    /**
-     * Parse a chemical formula into its constituent elements and their counts.
-     * 
-     * @param formula - The chemical formula to parse (e.g., "H2O", "C6H12O6").
-     * @return - An object mapping element symbols to their counts.
-     * @throws {TypeError} If the input is not a string.
-     * @throws {Error} If the formula contains unknown element symbols or is malformed.
-     */
-    public static parse ( formula: string ) : ElementCounts {
-
-        if ( typeof formula !== 'string' ) throw new TypeError (
-            `Formula must be a string.`
-        );
-
-        let charge: number | undefined;
-        let mainFormula = formula
-            .replace( /\s+/g, '' )
-            .replace( /([0-9]),([0-9])/g, '$1.$2' )
-            .replace( /,/g, '' );
-
-        // Extract charge at the end (caret or superscript)
-        const chargeMatch = mainFormula.match( CHARGE_REGEX );
-
-        if ( chargeMatch ) {
-
-            if ( chargeMatch[ 1 ] || chargeMatch[ 2 ] ) {
-
-                // Caret notation: ^2-, ^+, ^3+, ^-, ^+2, ^-3
-                const n = chargeMatch[ 1 ] ? parseInt( chargeMatch[ 1 ], 10 ) : 1;
-                charge = chargeMatch[ 2 ] === '+' ? n : -n;
-                mainFormula = mainFormula.slice( 0, chargeMatch.index );
-
-            } else if ( chargeMatch[ 3 ] ) {
-
-                // Unicode superscript: ²⁻, ³⁺, ⁻, ⁺
-                charge = this._parseSuperscriptCharge( chargeMatch[ 3 ] );
-                mainFormula = mainFormula.slice( 0, chargeMatch.index );
-
-            }
-
-        }
-
-        // Split formula into parts by Unicode middle dot (·) or "_"
-        const parts = mainFormula
-            .replace( /_|\u00B7/g, '·' )
-            .split( '·' )
-            .filter( p => p.length > 0 );
-
-        const total: ElementCounts = {};
-
-        for ( let part of parts ) {
-
-            // Leading coefficients (can be decimal / scientific)
-            let leadingCoef = 1;
-            const leadingMatch = part.match( NUMBER_REGEX );
-
-            if ( leadingMatch && leadingMatch.index === 0 ) {
-
-                leadingCoef = parseFloat( leadingMatch[ 1 ] );
-                part = part.slice( leadingMatch[ 1 ].length );
-
-                // Part is just a number -> nothing further to do
-                if ( part.length === 0 ) continue;
-
-            }
-
-            const partCounts = this._parseCore( part );
-
-            // Merge parts and scale by leadingCoef
-            for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
-
-                if ( ! ELEMENT_SYMBOLS.has( el as ElementSymbol ) ) throw new Error (
-                    `Unknown element symbol "${ el }" in formula "${ formula }"`
-                );
-
-                total[ el as ElementSymbol ] = (
-                    total[ el as ElementSymbol ] || 0
-                ) + cnt * leadingCoef;
-
-            }
-
-        }
-
-        if ( charge !== undefined ) total.charge = charge;
-
-        return total;
-
-    }
-
-    /**
-     * Validates a chemical formula.
-     * 
-     * @param formula - The chemical formula to validate.
-     * @return - True if the formula is valid, false otherwise.
-     */
-    public static validate ( formula: string ) : boolean {
-
-        try { this.parse( formula ) }
-        catch { return false }
-
-        return true;
-
-    }
-
-    /**
-     * Compares two chemical formulas for equality (element distribution).
-     * 
-     * @param a - The first chemical formula.
-     * @param b - The second chemical formula.
-     * @return - True if both formulas represent the same element distribution, false otherwise.
-     */
-    public static compare ( a: string, b: string ) : boolean {
-
-        try {
-
-            const pa = this.parse( a );
-            const pb = this.parse( b );
-            const keysA = Object.keys( pa ).sort();
-            const keysB = Object.keys( pb ).sort();
-
-            if ( keysA.length !== keysB.length ) return false;
-
-            for ( let i = 0; i < keysA.length; i++ ) {
-
-                if ( ( keysA[ i ] !== keysB[ i ] ) || ( Math.abs(
-                    ( pa as any )[ keysA[ i ] ] - ( pb as any )[ keysB[ i ] ]
-                ) > 1e-12 ) ) return false;
-
-            }
-
-            // Charges must also match (or both undefined)
-            return ( pa.charge ?? 0 ) === ( pb.charge ?? 0 );
-
-        } catch { return false }
-
-    }
-
-    /**
-     * Returns the difference in element counts between two chemical formulas.
-     * 
-     * @param a - The first chemical formula.
-     * @param b - The second chemical formula.
-     * @return - An object mapping element symbols to the difference in their counts (a - b).
-     */
-    public static diff ( a: string, b: string ) : ElementCounts {
-
-        const pa = this.parse( a );
-        const pb = this.parse( b );
-
-        const diff: ElementCounts = {};
-        const allKeys = new Set< keyof ElementCounts >( [
-            ...Object.keys( pa ) as ( keyof ElementCounts )[],
-            ...Object.keys( pb ) as ( keyof ElementCounts )[]
-        ] );
-
-        for ( const el of allKeys ) {
-
-            diff[ el ] = ( pa[ el ] || 0 ) - ( pb[ el ] || 0 );
-
-        }
-
-        return diff;
+        return result;
 
     }
 
