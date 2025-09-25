@@ -145,4 +145,97 @@ export default class ChemParse {
 
     }
 
+    private static _parseCore ( str: string ) : ElementCounts {
+
+        const stack: ElementCounts[] = [ {} ];
+        let i = 0;
+
+        while ( i < str.length ) {
+
+            const ch = str[ i ];
+
+            // Opening bracket
+            if ( ch === '(' || ch === '[' || ch === '{' ) {
+
+                stack.push( {} );
+                i++;
+
+                continue;
+
+            }
+
+            // Closing parenthesis -> optional decimal/scientific multiplier after
+            if ( ch === ')' || ch === ']' || ch === '}' ) {
+
+                const remainder = str.slice( ++i );
+                const numMatch = remainder.match( NUMBER_REGEX );
+                const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
+
+                if ( numMatch ) i += numMatch[ 1 ].length;
+
+                if ( stack.length === 1 ) throw new Error (
+                    `Unmatched closing bracket at position ${ ( i - 1 ) } in "${ str }"`
+                );
+
+                const popped = stack.pop()!;
+                const top = stack[ stack.length - 1 ];
+
+                for ( const [ el, cnt ] of Object.entries( popped ) ) {
+
+                    top[ el as ElementSymbol ] = (
+                        top[ el as ElementSymbol ] || 0
+                    ) + cnt * multiplier;
+
+                }
+
+                continue;
+
+            }
+
+            // Element symbol: uppercase letter followed by optional lowercase letters
+            if ( /[A-Z]/.test( ch ) ) {
+
+                let j = i + 1;
+
+                while ( j < str.length && /[a-z]/.test( str[ j ] ) ) j++;
+
+                const element = str.slice( i, j );
+                i = j;
+
+                // Optional counter (can be decimal / scientific)
+                const remainder = str.slice( i );
+                const numMatch = remainder.match( NUMBER_REGEX );
+                const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
+
+                if ( numMatch ) i += numMatch[ 1 ].length;
+
+                if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error (
+                    `Unknown element symbol "${ element }" in formula segment "${ str }"`
+                );
+
+                const top = stack[ stack.length - 1 ];
+
+                top[ element as ElementSymbol ] = (
+                    top[ element as ElementSymbol ] || 0
+                ) + count;
+
+                continue;
+
+            }
+
+            // Anything else is invalid
+            throw new Error (
+                `Invalid character "${ ch }" at position ${ i } in "${ str }"`
+            );
+
+        }
+
+        if ( stack.length !== 1 ) throw new Error (
+            `Unmatched opening bracket in formula segment "${ str }"`
+        );
+
+        return stack[ 0 ];
+
+    }
+
 }
