@@ -40,10 +40,10 @@
   "scripts": {
     "build:cjs": "tsc --project tsconfig.cjs.json && mv ./dist/chemparse.js ./dist/chemparse.cjs",
     "build:mjs": "tsc --project tsconfig.mjs.json && mv ./dist/chemparse.js ./dist/chemparse.mjs",
-    "build:types": "tsc --project tsconfig.d.json",
-    "build": "npm run build:cjs && npm run build:mjs && npm run build:types"
+    "build:dts": "tsc --project tsconfig.d.json",
+    "build": "npm run build:cjs && npm run build:mjs && npm run build:dts"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   }
 }
