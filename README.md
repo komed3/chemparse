@@ -92,7 +92,7 @@ ChemParse.parse( 'K4[Fe(CN)6]' );
 // => { elementCounts: { C: 6, N: 6, K: 4, Fe: 1 } }
 
 ChemParse.parse( 'C1.5O3' );
-// => { elementCounts: { C: 1.5, O: 1 } }
+// => { elementCounts: { C: 1.5, O: 3 } }
 
 ChemParse.parse( 'H2e-1O1e-1' );
 // => { elementCounts: { H: 0.2, O: 0.1 } }
