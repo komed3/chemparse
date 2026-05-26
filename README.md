@@ -113,7 +113,7 @@ ChemParse.compare( 'H2O', 'OH2' );
 // => true
 
 ChemParse.diff( 'C6H12O6', 'C1.5O3' );
-// => { elementCounts: { H: 12, C: 4.5, O: 0 } }
+// => { elementCounts: { H: 12, C: 4.5, O: 3 } }
 ```
 
 ## License
