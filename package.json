@@ -44,6 +44,6 @@
     "build": "npm run build:cjs && npm run build:mjs && npm run build:dts"
   },
   "devDependencies": {
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   }
 }
