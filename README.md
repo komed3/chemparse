@@ -118,4 +118,5 @@ ChemParse.diff( 'C6H12O6', 'C1.5O3' );
 
 ## License
 
-MIT © Paul Köhler (komed3)
+Copyright (c) 2025-2026 Paul Köhler (komed3)  
+MIT License
