@@ -2,7 +2,7 @@
   "name": "chemparse",
   "description": "Chemical formula parser; supports nested parentheses, decimal and scientific notation, dot-separated hydrate parts, IUPAC symbol validation",
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": {
     "name": "komed3 (Paul Köhler)",
     "email": "webmaster@komed3.de",
