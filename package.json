@@ -43,7 +43,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json && mv ./dist/chemparse.js ./dist/chemparse.cjs",
     "build:esm": "tsc -p tsconfig.esm.json && mv ./dist/chemparse.js ./dist/chemparse.mjs",
     "build:dts": "tsc -p tsconfig.dts.json",
-    "build:all": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && tsc -p tsconfig.dts.json",
+    "build:all": "npm run build:cjs && npm run build:esm && npm run build:dts",
     "format": "prettier --ignore-path \"\" --write \"./dist/**/*\" --log-level warn",
     "build": "npm run clean && npm run build:all && npm run format",
     "prepublishOnly": "npm run build",
