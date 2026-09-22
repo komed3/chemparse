@@ -25,18 +25,18 @@
  * A union type of all valid chemical element symbols.
  */
 export type ElementSymbol =
-    | 'H'  | 'He' | 'Li' | 'Be' | 'B'  | 'C'  | 'N'  | 'O'  | 'F'  | 'Ne'
-    | 'Na' | 'Mg' | 'Al' | 'Si' | 'P'  | 'S'  | 'Cl' | 'Ar' | 'K'  | 'Ca'
-    | 'Sc' | 'Ti' | 'V'  | 'Cr' | 'Mn' | 'Fe' | 'Co' | 'Ni' | 'Cu' | 'Zn'
-    | 'Ga' | 'Ge' | 'As' | 'Se' | 'Br' | 'Kr' | 'Rb' | 'Sr' | 'Y'  | 'Zr'
-    | 'Nb' | 'Mo' | 'Tc' | 'Ru' | 'Rh' | 'Pd' | 'Ag' | 'Cd' | 'In' | 'Sn'
-    | 'Sb' | 'Te' | 'I'  | 'Xe' | 'Cs' | 'Ba' | 'La' | 'Ce' | 'Pr' | 'Nd'
-    | 'Pm' | 'Sm' | 'Eu' | 'Gd' | 'Tb' | 'Dy' | 'Ho' | 'Er' | 'Tm' | 'Yb'
-    | 'Lu' | 'Hf' | 'Ta' | 'W'  | 'Re' | 'Os' | 'Ir' | 'Pt' | 'Au' | 'Hg'
-    | 'Tl' | 'Pb' | 'Bi' | 'Po' | 'At' | 'Rn' | 'Fr' | 'Ra' | 'Ac' | 'Th'
-    | 'Pa' | 'U'  | 'Np' | 'Pu' | 'Am' | 'Cm' | 'Bk' | 'Cf' | 'Es' | 'Fm'
-    | 'Md' | 'No' | 'Lr' | 'Rf' | 'Db' | 'Sg' | 'Bh' | 'Hs' | 'Mt' | 'Ds'
-    | 'Rg' | 'Cn' | 'Fl' | 'Lv' | 'Ts' | 'Og';
+  | 'H'  | 'He' | 'Li' | 'Be' | 'B'  | 'C'  | 'N'  | 'O'  | 'F'  | 'Ne'
+  | 'Na' | 'Mg' | 'Al' | 'Si' | 'P'  | 'S'  | 'Cl' | 'Ar' | 'K'  | 'Ca'
+  | 'Sc' | 'Ti' | 'V'  | 'Cr' | 'Mn' | 'Fe' | 'Co' | 'Ni' | 'Cu' | 'Zn'
+  | 'Ga' | 'Ge' | 'As' | 'Se' | 'Br' | 'Kr' | 'Rb' | 'Sr' | 'Y'  | 'Zr'
+  | 'Nb' | 'Mo' | 'Tc' | 'Ru' | 'Rh' | 'Pd' | 'Ag' | 'Cd' | 'In' | 'Sn'
+  | 'Sb' | 'Te' | 'I'  | 'Xe' | 'Cs' | 'Ba' | 'La' | 'Ce' | 'Pr' | 'Nd'
+  | 'Pm' | 'Sm' | 'Eu' | 'Gd' | 'Tb' | 'Dy' | 'Ho' | 'Er' | 'Tm' | 'Yb'
+  | 'Lu' | 'Hf' | 'Ta' | 'W'  | 'Re' | 'Os' | 'Ir' | 'Pt' | 'Au' | 'Hg'
+  | 'Tl' | 'Pb' | 'Bi' | 'Po' | 'At' | 'Rn' | 'Fr' | 'Ra' | 'Ac' | 'Th'
+  | 'Pa' | 'U'  | 'Np' | 'Pu' | 'Am' | 'Cm' | 'Bk' | 'Cf' | 'Es' | 'Fm'
+  | 'Md' | 'No' | 'Lr' | 'Rf' | 'Db' | 'Sg' | 'Bh' | 'Hs' | 'Mt' | 'Ds'
+  | 'Rg' | 'Cn' | 'Fl' | 'Lv' | 'Ts' | 'Og';
 
 /**
  * @typedef ElementCounts
@@ -52,9 +52,9 @@ export type ElementCounts = Partial< Record< ElementSymbol, number > >;
  * and optional ionic charge.
  */
 export interface ChemParseResult {
-    elementCounts: ElementCounts;
-    charge?: number;
-};
+  elementCounts: ElementCounts;
+  charge?: number;
+}
 
 /**
  * @constant ELEMENT_SYMBOLS
@@ -62,18 +62,18 @@ export interface ChemParseResult {
  * A set of all valid chemical element symbols for quick lookup.
  */
 const ELEMENT_SYMBOLS: Set< ElementSymbol > = new Set( [
-    'H',  'He', 'Li', 'Be', 'B',  'C',  'N',  'O',  'F',  'Ne',
-    'Na', 'Mg', 'Al', 'Si', 'P',  'S',  'Cl', 'Ar', 'K',  'Ca',
-    'Sc', 'Ti', 'V',  'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-    'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y',  'Zr',
-    'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
-    'Sb', 'Te', 'I',  'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
-    'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
-    'Lu', 'Hf', 'Ta', 'W',  'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
-    'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
-    'Pa', 'U',  'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-    'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
-    'Rg', 'Cn', 'Fl', 'Lv', 'Ts', 'Og'
+  'H',  'He', 'Li', 'Be', 'B',  'C',  'N',  'O',  'F',  'Ne',
+  'Na', 'Mg', 'Al', 'Si', 'P',  'S',  'Cl', 'Ar', 'K',  'Ca',
+  'Sc', 'Ti', 'V',  'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
+  'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y',  'Zr',
+  'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
+  'Sb', 'Te', 'I',  'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
+  'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
+  'Lu', 'Hf', 'Ta', 'W',  'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
+  'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
+  'Pa', 'U',  'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
+  'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
+  'Rg', 'Cn', 'Fl', 'Lv', 'Ts', 'Og'
 ] );
 
 /**
@@ -98,8 +98,8 @@ const CHARGE_REGEX = /(?:\^([0-9]+)?([+-]))$|(?:([⁰¹²³⁴⁵⁶⁷⁸⁹]*[
  * A mapping of Unicode superscript characters to their normal equivalents.
  */
 const SUPERSCRIPT_MAP: Record<string, string> = {
-    '⁺': '+', '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3',
-    '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9'
+  '⁺': '+', '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3',
+  '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9'
 };
 
 /**
@@ -109,290 +109,265 @@ const SUPERSCRIPT_MAP: Record<string, string> = {
  */
 export default class ChemParse {
 
-    /**
-     * Converts a regex match of a charge into a numeric value.
-     * 
-     * @param match - The regex match array.
-     * @return - The numeric charge value.
-     */
-    private static _chargeNumber ( match: RegExpMatchArray ) : number {
+  /**
+   * Converts a regex match of a charge into a numeric value.
+   * 
+   * @param match - The regex match array.
+   * @return - The numeric charge value.
+   */
+  private static chargeNumber ( match: RegExpMatchArray ) : number {
+    const n = match[ 1 ] ? parseInt( match[ 1 ], 10 ) : 1;
+    return match[ 2 ] === '+' ? n : -n;
+  }
 
-        const n = match[ 1 ] ? parseInt( match[ 1 ], 10 ) : 1;
+  /**
+   * Parses the charge from a regex match.
+   *
+   * @param match - The regex match array.
+   * @return - The numeric charge value, or undefined if no charge is found.
+   */
+  private static parseCharge ( match: RegExpMatchArray | null ) : number | undefined {
+    if ( ! match ) return undefined;
 
-        return match[ 2 ] === '+' ? n : -n;
+    // Caret notation: ^2-, ^+, ^3+, ^-, ^+2, ^-3
+    if ( match[ 1 ] || match[ 2 ] ) return this.chargeNumber( match );
 
+    // Unicode superscript: ²⁻, ³⁺, ⁻, ⁺
+    if ( match[ 3 ] ) {
+      let normal = '';
+      for ( const ch of match[ 3 ] ) if ( SUPERSCRIPT_MAP[ ch ] ) normal += SUPERSCRIPT_MAP[ ch ];
+
+      const m = normal.match( /^(\d*)([+-])$/ );
+      if ( m ) return this.chargeNumber( m );
     }
 
-    /**
-     * Parses the charge from a regex match.
-     *
-     * @param match - The regex match array.
-     * @return - The numeric charge value, or undefined if no charge is found.
-     */
-    private static _parseCharge ( match: RegExpMatchArray | null ) : number | undefined {
+    return undefined;
+  }
 
-        if ( ! match ) return undefined;
+  /**
+   * Core parser for a formula segment without leading coefficients or charges.
+   *
+   * @param str - The formula segment to parse.
+   * @return - An object mapping element symbols to their counts.
+   */
+  private static parseCore ( str: string ) : ElementCounts {
+    const stack: ElementCounts[] = [ {} ];
+    let i = 0;
 
-        // Caret notation: ^2-, ^+, ^3+, ^-, ^+2, ^-3
-        if ( match[ 1 ] || match[ 2 ] ) return this._chargeNumber( match );
+    while ( i < str.length ) {
+      const ch = str[ i ];
 
-        // Unicode superscript: ²⁻, ³⁺, ⁻, ⁺
-        if ( match[ 3 ] ) {
+      // Opening bracket
+      if ( ch === '(' || ch === '[' || ch === '{' ) {
+        stack.push( {} );
+        i++;
 
-            let normal = '';
+        continue;
+      }
 
-            for ( const ch of match[ 3 ] ) {
+      // Closing parenthesis -> optional decimal/scientific multiplier after
+      if ( ch === ')' || ch === ']' || ch === '}' ) {
+        const remainder = str.slice( ++i );
+        const numMatch = remainder.match( NUMBER_REGEX );
+        const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
 
-                if ( SUPERSCRIPT_MAP[ ch ] ) normal += SUPERSCRIPT_MAP[ ch ];
-
-            }
-
-            const m = normal.match( /^(\d*)([+-])$/ );
-
-            if ( m ) return this._chargeNumber( m );
-
-        }
-
-        return undefined;
-
-    }
-
-    /**
-     * Core parser for a formula segment without leading coefficients or charges.
-     *
-     * @param str - The formula segment to parse.
-     * @return - An object mapping element symbols to their counts.
-     */
-    private static _parseCore ( str: string ) : ElementCounts {
-
-        const stack: ElementCounts[] = [ {} ];
-        let i = 0;
-
-        while ( i < str.length ) {
-
-            const ch = str[ i ];
-
-            // Opening bracket
-            if ( ch === '(' || ch === '[' || ch === '{' ) {
-
-                stack.push( {} );
-                i++;
-
-                continue;
-
-            }
-
-            // Closing parenthesis -> optional decimal/scientific multiplier after
-            if ( ch === ')' || ch === ']' || ch === '}' ) {
-
-                const remainder = str.slice( ++i );
-                const numMatch = remainder.match( NUMBER_REGEX );
-                const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
-
-                if ( numMatch ) i += numMatch[ 1 ].length;
-
-                if ( stack.length === 1 ) throw new Error (
-                    `Unmatched closing bracket at position ${ ( i - 1 ) } in "${ str }"`
-                );
-
-                const popped = stack.pop()!;
-                const top = stack[ stack.length - 1 ];
-
-                for ( const [ el, cnt ] of Object.entries( popped ) ) {
-
-                    top[ el as ElementSymbol ] = (
-                        top[ el as ElementSymbol ] || 0
-                    ) + cnt * multiplier;
-
-                }
-
-                continue;
-
-            }
-
-            // Element symbol: uppercase letter followed by optional lowercase letters
-            if ( /[A-Z]/.test( ch ) ) {
-
-                let j = i + 1;
-
-                while ( j < str.length && /[a-z]/.test( str[ j ] ) ) j++;
-
-                const element = str.slice( i, j );
-                i = j;
-
-                // Optional counter (can be decimal / scientific)
-                const remainder = str.slice( i );
-                const numMatch = remainder.match( NUMBER_REGEX );
-                const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
-
-                if ( numMatch ) i += numMatch[ 1 ].length;
-
-                if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error (
-                    `Unknown element symbol "${ element }" in formula segment "${ str }"`
-                );
-
-                const top = stack[ stack.length - 1 ];
-
-                top[ element as ElementSymbol ] = (
-                    top[ element as ElementSymbol ] || 0
-                ) + count;
-
-                continue;
-
-            }
-
-            // Anything else is invalid
-            throw new Error (
-                `Invalid character "${ ch }" at position ${ i } in "${ str }"`
-            );
-
-        }
-
-        if ( stack.length !== 1 ) throw new Error (
-            `Unmatched opening bracket in formula segment "${ str }"`
+        if ( numMatch ) i += numMatch[ 1 ].length;
+        if ( stack.length === 1 ) throw new Error (
+          `Unmatched closing bracket at position ${ ( i - 1 ) } in "${ str }"`
         );
 
-        return stack[ 0 ];
+        const popped = stack.pop()!;
+        const top = stack[ stack.length - 1 ];
 
-    }
+        for ( const [ el, cnt ] of Object.entries( popped ) )
+          top[ el as ElementSymbol ] = ( top[ el as ElementSymbol ] || 0 ) + cnt * multiplier;
 
-    /**
-     * Parses a chemical formula into its constituent elements and counts.
-     *
-     * @param formula - The chemical formula to parse.
-     * @return - An object containing element counts and optional charge.
-     * @throws - If the formula is invalid.
-     */
-    public static parse ( formula: string ) : ChemParseResult {
+        continue;
+      }
 
-        if ( typeof formula !== 'string' ) throw new TypeError (
-            `Formula must be a string.`
+      // Element symbol: uppercase letter followed by optional lowercase letters
+      if ( /[A-Z]/.test( ch ) ) {
+
+        let j = i + 1;
+
+        while ( j < str.length && /[a-z]/.test( str[ j ] ) ) j++;
+
+        const element = str.slice( i, j );
+        i = j;
+
+        // Optional counter (can be decimal / scientific)
+        const remainder = str.slice( i );
+        const numMatch = remainder.match( NUMBER_REGEX );
+        const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
+
+        if ( numMatch ) i += numMatch[ 1 ].length;
+
+        if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error (
+          `Unknown element symbol "${ element }" in formula segment "${ str }"`
         );
 
-        let mainFormula = formula
-            .replace( /\s+/g, '' )
-            .replace( /([0-9]),([0-9])/g, '$1.$2' )
-            .replace( /,/g, '' );
+        const top = stack[ stack.length - 1 ];
 
-        // Extract charge at the end (caret or superscript)
-        const chargeMatch = mainFormula.match( CHARGE_REGEX );
-        const charge = this._parseCharge( chargeMatch );
+        top[ element as ElementSymbol ] = (
+          top[ element as ElementSymbol ] || 0
+        ) + count;
 
-        if ( chargeMatch ) mainFormula = mainFormula.slice( 0, chargeMatch.index );
+        continue;
 
-        // Normalize and split into parts by Unicode middle dot (·) or "_"
-        const parts = mainFormula
-            .replace( /_|\u00B7/g, '·' )
-            .split( '·' )
-            .filter( p => p.length > 0 );
+      }
 
-        const totalCounts: ElementCounts = {};
-
-        for ( let part of parts ) {
-
-            // Leading coefficients (can be decimal / scientific)
-            let leadingCoef = 1;
-            const leadingMatch = part.match( NUMBER_REGEX );
-
-            if ( leadingMatch && leadingMatch.index === 0 ) {
-
-                leadingCoef = parseFloat( leadingMatch[ 1 ] );
-                part = part.slice( leadingMatch[ 1 ].length );
-
-                if ( part.length === 0 ) continue;
-
-            }
-
-            const partCounts = this._parseCore( part );
-
-            for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
-
-                totalCounts[ el as ElementSymbol ] = (
-                    totalCounts[ el as ElementSymbol ] || 0
-                ) + cnt * leadingCoef;
-
-            }
-
-        }
-
-        // Sort elements by order in the periodic table
-        const elementCounts: ElementCounts = {};
-
-        ELEMENT_SYMBOLS.forEach( el => {
-            if ( el in totalCounts ) elementCounts[ el ] = totalCounts[ el ];
-        } );
-
-        // Return result with or without charge
-        return charge !== undefined
-            ? { elementCounts, charge }
-            : { elementCounts };
+      // Anything else is invalid
+      throw new Error (
+        `Invalid character "${ ch }" at position ${ i } in "${ str }"`
+      );
 
     }
 
-    /**
-     * Validates a chemical formula.
-     * 
-     * @param formula - The chemical formula to validate.
-     * @return - True if the formula is valid, false otherwise.
-     */
-    public static validate ( formula: string ) : boolean {
+    if ( stack.length !== 1 ) throw new Error (
+      `Unmatched opening bracket in formula segment "${ str }"`
+    );
 
-        try { this.parse( formula ) }
-        catch { return false }
+    return stack[ 0 ];
 
-        return true;
+  }
+
+  /**
+   * Parses a chemical formula into its constituent elements and counts.
+   *
+   * @param formula - The chemical formula to parse.
+   * @return - An object containing element counts and optional charge.
+   * @throws - If the formula is invalid.
+   */
+  public static parse ( formula: string ) : ChemParseResult {
+
+    if ( typeof formula !== 'string' ) throw new TypeError (
+      `Formula must be a string.`
+    );
+
+    let mainFormula = formula
+      .replace( /\s+/g, '' )
+      .replace( /([0-9]),([0-9])/g, '$1.$2' )
+      .replace( /,/g, '' );
+
+    // Extract charge at the end (caret or superscript)
+    const chargeMatch = mainFormula.match( CHARGE_REGEX );
+    const charge = this.parseCharge( chargeMatch );
+
+    if ( chargeMatch ) mainFormula = mainFormula.slice( 0, chargeMatch.index );
+
+    // Normalize and split into parts by Unicode middle dot (·) or "_"
+    const parts = mainFormula
+      .replace( /_|\u00B7/g, '·' )
+      .split( '·' )
+      .filter( p => p.length > 0 );
+
+    const totalCounts: ElementCounts = {};
+
+    for ( let part of parts ) {
+
+      // Leading coefficients (can be decimal / scientific)
+      let leadingCoef = 1;
+      const leadingMatch = part.match( NUMBER_REGEX );
+
+      if ( leadingMatch && leadingMatch.index === 0 ) {
+
+        leadingCoef = parseFloat( leadingMatch[ 1 ] );
+        part = part.slice( leadingMatch[ 1 ].length );
+
+        if ( part.length === 0 ) continue;
+
+      }
+
+      const partCounts = this.parseCore( part );
+
+      for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
+
+        totalCounts[ el as ElementSymbol ] = (
+          totalCounts[ el as ElementSymbol ] || 0
+        ) + cnt * leadingCoef;
+
+      }
 
     }
 
-    /**
-     * Compares two chemical formulas for equivalence.
-     *
-     * @param a - The first chemical formula.
-     * @param b - The second chemical formula.
-     * @return - True if the formulas are equivalent, false otherwise.
-     */
-    public static compare ( a: string, b: string ) : boolean {
+    // Sort elements by order in the periodic table
+    const elementCounts: ElementCounts = {};
 
-        return JSON.stringify( this.parse( a ) ) === JSON.stringify( this.parse( b ) );
+    ELEMENT_SYMBOLS.forEach( el => {
+      if ( el in totalCounts ) elementCounts[ el ] = totalCounts[ el ];
+    } );
+
+    // Return result with or without charge
+    return charge !== undefined
+      ? { elementCounts, charge }
+      : { elementCounts };
+
+  }
+
+  /**
+   * Validates a chemical formula.
+   * 
+   * @param formula - The chemical formula to validate.
+   * @return - True if the formula is valid, false otherwise.
+   */
+  public static validate ( formula: string ) : boolean {
+
+    try { this.parse( formula ) }
+    catch { return false }
+
+    return true;
+
+  }
+
+  /**
+   * Compares two chemical formulas for equivalence.
+   *
+   * @param a - The first chemical formula.
+   * @param b - The second chemical formula.
+   * @return - True if the formulas are equivalent, false otherwise.
+   */
+  public static compare ( a: string, b: string ) : boolean {
+
+    return JSON.stringify( this.parse( a ) ) === JSON.stringify( this.parse( b ) );
+
+  }
+
+  /**
+   * Computes the difference in element counts and charge between two formulas.
+   * 
+   * @param a - The first chemical formula.
+   * @param b - The second chemical formula.
+   * @return - An object representing the difference in element counts and charge.
+   */
+  public static diff ( a: string, b: string ) : ChemParseResult {
+
+    const pa = this.parse( a );
+    const pb = this.parse( b );
+
+    const diff: ChemParseResult = { elementCounts: {} };
+    const allKeys = new Set< ElementSymbol >( [
+      ...Object.keys( pa.elementCounts ) as ElementSymbol[],
+      ...Object.keys( pb.elementCounts ) as ElementSymbol[]
+    ] );
+
+    for ( const el of allKeys ) {
+
+      diff.elementCounts[ el ] =
+        ( pa.elementCounts[ el ] || 0 ) -
+        ( pb.elementCounts[ el ] || 0 );
 
     }
 
-    /**
-     * Computes the difference in element counts and charge between two formulas.
-     * 
-     * @param a - The first chemical formula.
-     * @param b - The second chemical formula.
-     * @return - An object representing the difference in element counts and charge.
-     */
-    public static diff ( a: string, b: string ) : ChemParseResult {
+    if ( pa.charge || pb.charge ) {
 
-        const pa = this.parse( a );
-        const pb = this.parse( b );
-
-        const diff: ChemParseResult = { elementCounts: {} };
-        const allKeys = new Set< ElementSymbol >( [
-            ...Object.keys( pa.elementCounts ) as ElementSymbol[],
-            ...Object.keys( pb.elementCounts ) as ElementSymbol[]
-        ] );
-
-        for ( const el of allKeys ) {
-
-            diff.elementCounts[ el ] =
-                ( pa.elementCounts[ el ] || 0 ) -
-                ( pb.elementCounts[ el ] || 0 );
-
-        }
-
-        if ( pa.charge || pb.charge ) {
-
-            diff.charge =
-                ( pa.charge || 0 ) -
-                ( pb.charge || 0 );
-
-        }
-
-        return diff;
+      diff.charge =
+        ( pa.charge || 0 ) -
+        ( pb.charge || 0 );
 
     }
+
+    return diff;
+
+  }
 
 }
