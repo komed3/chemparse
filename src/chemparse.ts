@@ -228,10 +228,7 @@ export default class ChemParse {
    * @throws - If the formula is invalid.
    */
   public static parse ( formula: string ) : ChemParseResult {
-
-    if ( typeof formula !== 'string' ) throw new TypeError (
-      `Formula must be a string.`
-    );
+    if ( typeof formula !== 'string' ) throw new TypeError( `Formula must be a string.` );
 
     let mainFormula = formula
       .replace( /\s+/g, '' )
@@ -245,52 +242,33 @@ export default class ChemParse {
     if ( chargeMatch ) mainFormula = mainFormula.slice( 0, chargeMatch.index );
 
     // Normalize and split into parts by Unicode middle dot (·) or "_"
-    const parts = mainFormula
-      .replace( /_|\u00B7/g, '·' )
-      .split( '·' )
-      .filter( p => p.length > 0 );
-
-    const totalCounts: ElementCounts = {};
+    const parts = mainFormula.replace( /_|\u00B7/g, '·' ).split( '·' ).filter( p => p.length > 0 );
+    const counts: ElementCounts = {};
 
     for ( let part of parts ) {
-
       // Leading coefficients (can be decimal / scientific)
       let leadingCoef = 1;
       const leadingMatch = part.match( NUMBER_REGEX );
 
       if ( leadingMatch && leadingMatch.index === 0 ) {
-
         leadingCoef = parseFloat( leadingMatch[ 1 ] );
         part = part.slice( leadingMatch[ 1 ].length );
 
         if ( part.length === 0 ) continue;
-
       }
 
       const partCounts = this.parseCore( part );
 
-      for ( const [ el, cnt ] of Object.entries( partCounts ) ) {
-
-        totalCounts[ el as ElementSymbol ] = (
-          totalCounts[ el as ElementSymbol ] || 0
-        ) + cnt * leadingCoef;
-
-      }
-
+      for ( const [ el, cnt ] of Object.entries( partCounts ) )
+        counts[ el as ElementSymbol ] = ( counts[ el as ElementSymbol ] || 0 ) + cnt * leadingCoef;
     }
 
     // Sort elements by order in the periodic table
     const elementCounts: ElementCounts = {};
-
-    ELEMENT_SYMBOLS.forEach( el => {
-      if ( el in totalCounts ) elementCounts[ el ] = totalCounts[ el ];
-    } );
+    ELEMENT_SYMBOLS.forEach( el => { if ( el in counts ) elementCounts[ el ] = counts[ el ] } );
 
     // Return result with or without charge
-    return charge !== undefined
-      ? { elementCounts, charge }
-      : { elementCounts };
-
+    return charge !== undefined ? { elementCounts, charge } : { elementCounts };
   }
 
   /**
@@ -300,12 +278,8 @@ export default class ChemParse {
    * @return - True if the formula is valid, false otherwise.
    */
   public static validate ( formula: string ) : boolean {
-
-    try { this.parse( formula ) }
-    catch { return false }
-
+    try { this.parse( formula ) } catch { return false }
     return true;
-
   }
 
   /**
@@ -316,9 +290,7 @@ export default class ChemParse {
    * @return - True if the formulas are equivalent, false otherwise.
    */
   public static compare ( a: string, b: string ) : boolean {
-
     return JSON.stringify( this.parse( a ) ) === JSON.stringify( this.parse( b ) );
-
   }
 
   /**
@@ -329,9 +301,7 @@ export default class ChemParse {
    * @return - An object representing the difference in element counts and charge.
    */
   public static diff ( a: string, b: string ) : ChemParseResult {
-
-    const pa = this.parse( a );
-    const pb = this.parse( b );
+    const pa = this.parse( a ), pb = this.parse( b );
 
     const diff: ChemParseResult = { elementCounts: {} };
     const allKeys = new Set< ElementSymbol >( [
@@ -339,24 +309,11 @@ export default class ChemParse {
       ...Object.keys( pb.elementCounts ) as ElementSymbol[]
     ] );
 
-    for ( const el of allKeys ) {
+    for ( const el of allKeys ) diff.elementCounts[ el ] = (
+        ( pa.elementCounts[ el ] || 0 ) - ( pb.elementCounts[ el ] || 0 )
+    );
 
-      diff.elementCounts[ el ] =
-        ( pa.elementCounts[ el ] || 0 ) -
-        ( pb.elementCounts[ el ] || 0 );
-
-    }
-
-    if ( pa.charge || pb.charge ) {
-
-      diff.charge =
-        ( pa.charge || 0 ) -
-        ( pb.charge || 0 );
-
-    }
-
+    if ( pa.charge || pb.charge ) diff.charge = ( pa.charge || 0 ) - ( pb.charge || 0 );
     return diff;
-
   }
-
 }
