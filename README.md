@@ -48,7 +48,7 @@ https://jsdelivr.com/package/npm/chemparse
 
 ```html
 <script type="module">
-  import ChemParse from 'https://cdn.jsdelivr.net/npm/chemparse@1.0.1/+esm'
+  import ChemParse from 'https://cdn.jsdelivr.net/npm/chemparse@1.0.4/+esm'
 
   const result = ChemParse.parse( 'CH3COO^-' );
   console.log( result );
