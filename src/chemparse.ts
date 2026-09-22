@@ -187,9 +187,7 @@ export default class ChemParse {
 
       // Element symbol: uppercase letter followed by optional lowercase letters
       if ( /[A-Z]/.test( ch ) ) {
-
         let j = i + 1;
-
         while ( j < str.length && /[a-z]/.test( str[ j ] ) ) j++;
 
         const element = str.slice( i, j );
@@ -201,26 +199,18 @@ export default class ChemParse {
         const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
 
         if ( numMatch ) i += numMatch[ 1 ].length;
-
         if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error (
           `Unknown element symbol "${ element }" in formula segment "${ str }"`
         );
 
         const top = stack[ stack.length - 1 ];
-
-        top[ element as ElementSymbol ] = (
-          top[ element as ElementSymbol ] || 0
-        ) + count;
+        top[ element as ElementSymbol ] = ( top[ element as ElementSymbol ] || 0 ) + count;
 
         continue;
-
       }
 
       // Anything else is invalid
-      throw new Error (
-        `Invalid character "${ ch }" at position ${ i } in "${ str }"`
-      );
-
+      throw new Error ( `Invalid character "${ ch }" at position ${ i } in "${ str }"` );
     }
 
     if ( stack.length !== 1 ) throw new Error (
@@ -228,7 +218,6 @@ export default class ChemParse {
     );
 
     return stack[ 0 ];
-
   }
 
   /**
