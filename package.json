@@ -13,6 +13,7 @@
     "chemistry",
     "chemistry-formulas",
     "formula-parser",
+    "formula",
     "parser"
   ],
   "repository": {
@@ -38,10 +39,15 @@
     }
   },
   "scripts": {
-    "build:cjs": "tsc --project tsconfig.cjs.json && mv ./dist/chemparse.js ./dist/chemparse.cjs",
-    "build:mjs": "tsc --project tsconfig.mjs.json && mv ./dist/chemparse.js ./dist/chemparse.mjs",
-    "build:dts": "tsc --project tsconfig.d.json",
-    "build": "npm run build:cjs && npm run build:mjs && npm run build:dts"
+    "clean": "rimraf dist",
+    "build:cjs": "tsc -p tsconfig.cjs.json && mv ./dist/chemparse.js ./dist/chemparse.cjs",
+    "build:esm": "tsc -p tsconfig.esm.json && mv ./dist/chemparse.js ./dist/chemparse.mjs",
+    "build:dts": "tsc -p tsconfig.dts.json",
+    "build:all": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && tsc -p tsconfig.dts.json",
+    "format": "prettier --ignore-path \"\" --write \"./dist/**/*\" --log-level warn",
+    "build": "npm run clean && npm run build:all && npm run format",
+    "prepublishOnly": "npm run build",
+    "lint": "tsc --noEmit"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
