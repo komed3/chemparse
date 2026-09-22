@@ -97,7 +97,7 @@ const CHARGE_REGEX = /(?:\^([0-9]+)?([+-]))$|(?:([⁰¹²³⁴⁵⁶⁷⁸⁹]*[
  * 
  * A mapping of Unicode superscript characters to their normal equivalents.
  */
-const SUPERSCRIPT_MAP: Record<string, string> = {
+const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁺': '+', '⁻': '-', '⁰': '0', '¹': '1', '²': '2', '³': '3',
   '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9'
 };
@@ -172,7 +172,7 @@ export default class ChemParse {
         const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
 
         if ( numMatch ) i += numMatch[ 1 ].length;
-        if ( stack.length === 1 ) throw new Error (
+        if ( stack.length === 1 ) throw new Error(
           `Unmatched closing bracket at position ${ ( i - 1 ) } in "${ str }"`
         );
 
@@ -199,7 +199,7 @@ export default class ChemParse {
         const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
 
         if ( numMatch ) i += numMatch[ 1 ].length;
-        if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error (
+        if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error(
           `Unknown element symbol "${ element }" in formula segment "${ str }"`
         );
 
@@ -213,7 +213,7 @@ export default class ChemParse {
       throw new Error ( `Invalid character "${ ch }" at position ${ i } in "${ str }"` );
     }
 
-    if ( stack.length !== 1 ) throw new Error (
+    if ( stack.length !== 1 ) throw new Error(
       `Unmatched opening bracket in formula segment "${ str }"`
     );
 
@@ -310,7 +310,7 @@ export default class ChemParse {
     ] );
 
     for ( const el of allKeys ) diff.elementCounts[ el ] = (
-        ( pa.elementCounts[ el ] || 0 ) - ( pb.elementCounts[ el ] || 0 )
+      ( pa.elementCounts[ el ] || 0 ) - ( pb.elementCounts[ el ] || 0 )
     );
 
     if ( pa.charge || pb.charge ) diff.charge = ( pa.charge || 0 ) - ( pb.charge || 0 );
