@@ -75,6 +75,7 @@ Returns the difference in element counts and ionic charge between two formulas (
 - Simple formulas: `H2O`, `NaMnO4`, `C6H12O6`
 - Hydrates and dot notation: `CuSO4·5H2O`, `CCl3_CH(OH)2`, `2.5H2O`, `.5H2O`
 - Parentheses and nested groups: `Ca(OH)2`, `(NH4)2SO4`, `K4[Fe(CN)6]`, `Al2(SO4)3`
+- Bracket types must be properly paired; malformed forms such as `C([O})` are rejected
 - Decimal and scientific notation: `C1.5O3`, `H2e-1O1e-1`, `Mg(OH)1.5`, `Fe2(SO4)1.5`
 - Element lists with commas: `Fe2(S,O4)`, `Al2(S,O4)3`
 - Leading coefficients: `2H2O`, `5·H2O`

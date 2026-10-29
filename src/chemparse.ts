@@ -151,7 +151,7 @@ export default class ChemParse {
    * @return - An object mapping element symbols to their counts.
    */
   private static parseCore ( str: string ) : ElementCounts {
-    const stack: ElementCounts[] = [ {} ];
+    const stack: Array< { counts: ElementCounts; opener?: string } > = [ { counts: {} } ];
     let i = 0;
 
     while ( i < str.length ) {
@@ -159,7 +159,7 @@ export default class ChemParse {
 
       // Opening bracket
       if ( ch === '(' || ch === '[' || ch === '{' ) {
-        stack.push( {} );
+        stack.push( { counts: {}, opener: ch } );
         i++;
 
         continue;
@@ -167,19 +167,24 @@ export default class ChemParse {
 
       // Closing parenthesis -> optional decimal/scientific multiplier after
       if ( ch === ')' || ch === ']' || ch === '}' ) {
+        if ( stack.length === 1 ) throw new Error(
+          `Unmatched closing bracket at position ${ i } in "${ str }"`
+        );
+
+        const expected = ch === ')' ? '(' : ch === ']' ? '[' : '{';
+        if ( stack[ stack.length - 1 ].opener !== expected ) throw new Error(
+          `Mismatched closing bracket at position ${ i } in "${ str }"`
+        );
+
         const remainder = str.slice( ++i );
         const numMatch = remainder.match( NUMBER_REGEX );
         const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
 
         if ( numMatch ) i += numMatch[ 1 ].length;
-        if ( stack.length === 1 ) throw new Error(
-          `Unmatched closing bracket at position ${ ( i - 1 ) } in "${ str }"`
-        );
-
         const popped = stack.pop()!;
-        const top = stack[ stack.length - 1 ];
+        const top = stack[ stack.length - 1 ].counts;
 
-        for ( const [ el, cnt ] of Object.entries( popped ) )
+        for ( const [ el, cnt ] of Object.entries( popped.counts ) )
           top[ el as ElementSymbol ] = ( top[ el as ElementSymbol ] || 0 ) + cnt * multiplier;
 
         continue;
@@ -203,7 +208,7 @@ export default class ChemParse {
           `Unknown element symbol "${ element }" in formula segment "${ str }"`
         );
 
-        const top = stack[ stack.length - 1 ];
+        const top = stack[ stack.length - 1 ].counts;
         top[ element as ElementSymbol ] = ( top[ element as ElementSymbol ] || 0 ) + count;
 
         continue;
@@ -217,7 +222,7 @@ export default class ChemParse {
       `Unmatched opening bracket in formula segment "${ str }"`
     );
 
-    return stack[ 0 ];
+    return stack[ 0 ].counts;
   }
 
   /**
