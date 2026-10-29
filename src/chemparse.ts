@@ -230,10 +230,20 @@ export default class ChemParse {
   public static parse ( formula: string ) : ChemParseResult {
     if ( typeof formula !== 'string' ) throw new TypeError( `Formula must be a string.` );
 
-    let mainFormula = formula
-      .replace( /\s+/g, '' )
-      .replace( /([0-9]),([0-9])/g, '$1.$2' )
-      .replace( /,/g, '' );
+    let mainFormula = formula.replace( /\s+/g, '' );
+    mainFormula = mainFormula.replace( /([0-9]),([0-9])/g, '$1.$2' );
+    let bracketDepth = 0;
+    for ( let i = 0; i < mainFormula.length; i++ ) {
+      if ( '([{'.includes( mainFormula[ i ] ) ) bracketDepth++;
+      else if ( ')]}'.includes( mainFormula[ i ] ) ) bracketDepth--;
+      else if ( mainFormula[ i ] === ',' && bracketDepth === 0 ) {
+        const prev = mainFormula[ i - 1 ];
+        const next = mainFormula[ i + 1 ];
+        if ( !prev || !next || !/[0-9]/.test( prev ) || !/[0-9]/.test( next ) )
+          throw new Error( `Invalid top-level comma in formula "${ formula }"` );
+      }
+    }
+    mainFormula = mainFormula.replace( /,/g, '' );
 
     // Extract charge at the end (caret or superscript)
     const chargeMatch = mainFormula.match( CHARGE_REGEX );
@@ -242,7 +252,9 @@ export default class ChemParse {
     if ( chargeMatch ) mainFormula = mainFormula.slice( 0, chargeMatch.index );
 
     // Normalize and split into parts by Unicode middle dot (·) or "_"
-    const parts = mainFormula.replace( /_|\u00B7/g, '·' ).split( '·' ).filter( p => p.length > 0 );
+    const parts = mainFormula.replace( /_|\u00B7/g, '·' ).split( '·' );
+    if ( parts.some( p => p.length === 0 ) )
+      throw new Error( `Formula contains an empty hydrate segment.` );
     const counts: ElementCounts = {};
 
     for ( let part of parts ) {
@@ -262,6 +274,9 @@ export default class ChemParse {
       for ( const [ el, cnt ] of Object.entries( partCounts ) )
         counts[ el as ElementSymbol ] = ( counts[ el as ElementSymbol ] || 0 ) + cnt * leadingCoef;
     }
+
+    if ( Object.keys( counts ).length === 0 )
+      throw new Error( `Formula must contain at least one element.` );
 
     // Sort elements by order in the periodic table
     const elementCounts: ElementCounts = {};
