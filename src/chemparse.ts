@@ -109,6 +109,14 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
  */
 export default class ChemParse {
 
+  /** Chemical element and group counts must be finite positive numbers. */
+  private static validateCount ( value: number, context: string ) : number {
+    if ( ! Number.isFinite( value ) || value <= 0 ) throw new Error(
+      `Invalid ${ context } "${ value }": counts must be finite and positive`
+    );
+    return value;
+  }
+
   /**
    * Converts a regex match of a charge into a numeric value.
    * 
@@ -169,7 +177,10 @@ export default class ChemParse {
       if ( ch === ')' || ch === ']' || ch === '}' ) {
         const remainder = str.slice( ++i );
         const numMatch = remainder.match( NUMBER_REGEX );
-        const multiplier = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
+        const multiplier = this.validateCount(
+          numMatch ? parseFloat( numMatch[ 1 ] ) : 1,
+          'group multiplier'
+        );
 
         if ( numMatch ) i += numMatch[ 1 ].length;
         if ( stack.length === 1 ) throw new Error(
@@ -196,7 +207,10 @@ export default class ChemParse {
         // Optional counter (can be decimal / scientific)
         const remainder = str.slice( i );
         const numMatch = remainder.match( NUMBER_REGEX );
-        const count = numMatch ? parseFloat( numMatch[ 1 ] ) : 1;
+        const count = this.validateCount(
+          numMatch ? parseFloat( numMatch[ 1 ] ) : 1,
+          `count for ${ element }`
+        );
 
         if ( numMatch ) i += numMatch[ 1 ].length;
         if ( ! ELEMENT_SYMBOLS.has( element as ElementSymbol ) ) throw new Error(
@@ -251,7 +265,10 @@ export default class ChemParse {
       const leadingMatch = part.match( NUMBER_REGEX );
 
       if ( leadingMatch && leadingMatch.index === 0 ) {
-        leadingCoef = parseFloat( leadingMatch[ 1 ] );
+        leadingCoef = this.validateCount(
+          parseFloat( leadingMatch[ 1 ] ),
+          'leading coefficient'
+        );
         part = part.slice( leadingMatch[ 1 ].length );
 
         if ( part.length === 0 ) continue;
