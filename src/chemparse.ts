@@ -260,6 +260,24 @@ export function compare ( a: string, b: string ) : boolean {
 }
 
 
+export function compareMany ( ...formulas: string[] ) : boolean {
+  if ( formulas.length < 2 ) throw new Error( 'At least two formulas must be provided.' );
+
+  const first = parse( formulas[ 0 ] );
+
+  for ( let i = 1; i < formulas.length; i++ ) {
+    const current = parse( formulas[ i ] );
+    if ( ( first.charge || 0 ) !== ( current.charge || 0 ) ) return false;
+
+    for ( const el of ELEMENT_SYMBOLS )
+      if ( ( first.elementCounts[ el ] || 0 ) !== ( current.elementCounts[ el ] || 0 ) )
+        return false;
+  }
+
+  return true;
+}
+
+
 export function diff ( a: string, b: string ) : ChemParseResult {
   const first = parse( a ), second = parse( b );
   const elementCounts: ElementCounts = {};
