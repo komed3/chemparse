@@ -26,8 +26,5 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Build Project
-        run: npm run build
-
       - name: Publish Package to npm
         run: npm publish
