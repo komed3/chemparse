@@ -149,3 +149,34 @@ test( 'validate', () => {
   assert.equal( validate( 'H2O·5' ), false );
   assert.equal( validate( null ), false );
 } );
+
+
+test( 'compare', async t => {
+  await t.test( 'equivalent formulas', () => {
+    assert.equal( compare( 'H2O', 'OH2' ), true );
+    assert.equal( compare( 'Ca(OH)2', 'CaH2O2' ), true );
+    assert.equal( compare( 'Al2(SO4)3', 'Al2S3O12' ), true );
+    assert.equal( compare( 'CuSO4·5H2O', 'CuH10O9S' ), true );
+  } );
+
+  await t.test( 'different formulas', () => {
+    assert.equal( compare( 'H2O', 'H2' ), false );
+    assert.equal( compare( 'NaCl', 'KCl' ), false );
+    assert.equal( compare( 'NH4^+', 'NH4^-' ), false );
+  } );
+
+  await t.test( 'compareMany', () => {
+    assert.equal( compareMany( 'H2O', 'OH2', 'H2O' ), true );
+    assert.equal( compareMany( 'H2O', 'OH2', 'H2' ), false );
+    assert.equal( compareMany( 'NaCl', 'ClNa', 'NaCl' ), true );
+  } );
+
+  await t.test( 'requires at least two formulas', () => {
+    assert.throws( () => compareMany() );
+    assert.throws( () => compareMany( 'H2O' ) );
+  } );
+
+  await t.test( 'invalid formulas throw', () => {
+    assert.throws( () => compare( 'H2O', 'Xx' ) );
+  } );
+} );
