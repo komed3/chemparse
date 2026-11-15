@@ -41,6 +41,11 @@ export interface ChemParseResult {
   charge?: number;
 }
 
+interface ParserFrame {
+  counts: ElementCounts;
+  opener?: string;
+}
+
 
 const ELEMENT_SYMBOLS: ElementSymbol[] = [
   'H',  'He', 'Li', 'Be', 'B',  'C',  'N',  'O',  'F',  'Ne',
