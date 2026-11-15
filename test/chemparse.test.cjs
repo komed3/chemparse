@@ -72,4 +72,16 @@ test( 'parse', async t => {
     assert.deepEqual( parse( 'Al2(S,O4)3' ), { elementCounts: { O: 12, Al: 2, S: 3 } } );
     assert.deepEqual( parse( 'Fe(S,(O))' ), { elementCounts: { O: 1, S: 1, Fe: 1 } } );
   } );
+
+  await t.test( 'hydrates and separators', () => {
+    assert.deepEqual( parse( 'CuSO4·5H2O' ), { elementCounts: { H: 10, O: 9, S: 1, Cu: 1 } } );
+    assert.deepEqual( parse( 'CCl3_CH(OH)2' ), { elementCounts: { H: 3, C: 2, O: 2, Cl: 3 } } );
+  } );
+
+  await t.test( 'leading coefficients', () => {
+    assert.deepEqual( parse( '2H2O' ), { elementCounts: { H: 4, O: 2 } } );
+    assert.deepEqual( parse( '5·H2O' ), { elementCounts: { H: 10, O: 5 } } );
+    assert.deepEqual( parse( '2·3H2O' ), { elementCounts: { H: 12, O: 6 } } );
+    assert.deepEqual( parse( '2H2O·3NaCl' ), { elementCounts: { H: 4, O: 2, Na: 3, Cl: 3 } } );
+  } );
 } );
