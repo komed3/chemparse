@@ -313,3 +313,21 @@ parse( 'CuSO4·5H2O' );
 ```
 
 Difference results may also contain negative or zero element counts.
+
+
+## Error Handling
+
+`parse()` throws an error when the input is invalid. Examples include:
+
+- Empty formulas
+- Unknown or incorrectly cased element symbols
+- Invalid characters
+- Unmatched or mismatched brackets
+- Empty groups
+- Invalid comma placement
+- Missing or invalid numerical counts
+- Non-finite or non-positive counts and multipliers
+- Empty hydrate segments or trailing hydrate coefficients
+- Invalid ionic charges
+
+`validate()` can be used when a boolean result is preferred over exception handling.
