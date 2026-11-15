@@ -249,7 +249,7 @@ export function validate ( formula: string ) : boolean {
 
 export function compare ( a: string, b: string ) : boolean {
   const first = parse( a ), second = parse( b );
-  if ( ( first.charge || 0 ) !== ( second.charge || 0 ) ) return false;
+  if ( first.charge !== second.charge ) return false;
 
   for ( const el of ELEMENT_SYMBOLS )
     if ( ( first.elementCounts[ el ] || 0 ) !== ( second.elementCounts[ el ] || 0 ) )
@@ -266,7 +266,7 @@ export function compareMany ( ...formulas: string[] ) : boolean {
 
   for ( let i = 1; i < formulas.length; i++ ) {
     const current = parse( formulas[ i ] );
-    if ( ( first.charge || 0 ) !== ( current.charge || 0 ) ) return false;
+    if ( first.charge !== current.charge ) return false;
 
     for ( const el of ELEMENT_SYMBOLS )
       if ( ( first.elementCounts[ el ] || 0 ) !== ( current.elementCounts[ el ] || 0 ) )
