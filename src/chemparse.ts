@@ -139,82 +139,71 @@ function parseCharge ( formula: string ) : [ string, number | undefined ] {
   return [ formula.slice( 0, match.index ), parsed[ 2 ] === '+' ? value : -value ];
 }
 
+/**
+ * Parses a formula segment into its element counts.
+ *
+ * @throws {Error} If the formula contains invalid symbols, brackets, commas or counts.
+ */
 function parseSegment ( formula: string ) : ElementCounts {
   const stack: ParserFrame[] = [ { counts: {}, afterComma: false } ];
-  let position = 0;
+  let pos = 0;
 
-  while ( position < formula.length ) {
-    const char = formula[ position ];
+  while ( pos < formula.length ) {
+    const char = formula[ pos ], frame = stack[ stack.length - 1 ], counts = frame.counts;
 
-    if ( char === '(' || char === '[' || char === '{' ) {
-      stack[ stack.length - 1 ].afterComma = false;
+    if ( '([{'.includes( char ) ) {
+      frame.afterComma = false;
       stack.push( { counts: {}, opener: char, afterComma: false } );
-      position++;
+      pos++;
+
       continue;
     }
 
-    if ( char === ')' || char === ']' || char === '}' ) {
-      if ( stack.length === 1 ) throw new Error(
-        `Unmatched closing bracket at position ${ position }.`
-      );
+    if ( ')]}'.includes( char ) ) {
+      if ( stack.length === 1 ) throw new Error( `Unmatched closing bracket at pos ${ pos }.` );
+      if ( frame.afterComma ) throw new Error( `Invalid comma at position ${ pos - 1 }.` );
+      if ( Object.keys( counts ).length === 0 ) throw new Error( 'Empty groups are not allowed.' );
 
-      const { opener, counts, afterComma } = stack[ stack.length - 1 ];
-      const expected = char === ')' ? '(' : char === ']' ? '[' : '{';
-
-      if ( opener !== expected ) throw new Error(
-        `Mismatched closing bracket at position ${ position }.`
-      );
-
-      if ( Object.keys( counts ).length === 0 ) throw new Error(
-        'Empty groups are not allowed.'
-      );
-
-      if ( afterComma ) throw new Error( `Invalid comma at position ${ position - 1 }.` );
+      if ( frame.opener !== ( char === ')' ? '(' : char === ']' ? '[' : '{' ) )
+        throw new Error( `Mismatched closing bracket at pos ${ pos }.` );
 
       stack.pop();
-      position++;
+      pos++;
 
-      const parsed = readNumber( formula, position );
-      const multiplier = parsed?.[ 0 ] || 1;
+      const parsed = readNumber( formula, pos );
+      if ( parsed ) pos = parsed[ 1 ];
 
-      if ( parsed ) position = parsed[ 1 ];
-
-      mergeCounts( stack[ stack.length - 1 ].counts, counts, multiplier );
+      mergeCounts( stack[ stack.length - 1 ].counts, counts, parsed?.[ 0 ] || 1 );
       continue;
     }
 
     if ( char === ',' ) {
-      const frame = stack[ stack.length - 1 ];
-
-      if ( stack.length === 1 || frame.afterComma || Object.keys( frame.counts ).length === 0 )
-        throw new Error( `Invalid comma at position ${ position }.` );
+      if ( stack.length === 1 || frame.afterComma || ! Object.keys( counts ).length )
+        throw new Error( `Invalid comma at position ${ pos }.` );
 
       frame.afterComma = true;
-      position++;
+      pos++;
       continue;
     }
 
     if ( char >= 'A' && char <= 'Z' ) {
-      let end = position + 1;
-
+      let end = pos + 1;
       while ( end < formula.length && formula[ end ] >= 'a' && formula[ end ] <= 'z' ) end++;
 
-      const el = formula.slice( position, end );
+      const el = formula.slice( pos, end );
       if ( ! ELEMENT_SET.has( el ) ) throw new Error( `Unknown element symbol "${ el }".` );
 
-      position = end;
+      pos = end;
 
-      const parsed = readNumber( formula, position );
-      const count = parsed?.[ 0 ] || 1;
+      const parsed = readNumber( formula, pos );
+      if ( parsed ) pos = parsed[ 1 ];
 
-      if ( parsed ) position = parsed[ 1 ];
-
-      stack[ stack.length - 1 ].afterComma = false;
-      mergeCounts( stack[ stack.length - 1 ].counts, { [ el ]: count } );
+      frame.afterComma = false;
+      mergeCounts( counts, { [ el ]: parsed?.[ 0 ] || 1 } );
       continue;
     }
 
-    throw new Error( `Invalid character "${ char }" at position ${ position }.` );
+    throw new Error( `Invalid character "${ char }" at position ${ pos }.` );
   }
 
   if ( stack.length !== 1 ) throw new Error( 'Unmatched opening bracket.' );
