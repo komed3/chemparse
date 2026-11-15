@@ -242,3 +242,9 @@ export function parse ( formula: string ) : ChemParseResult {
 
   return charge === undefined ? { elementCounts } : { elementCounts, charge };
 }
+
+
+export function validate ( formula: string ) : boolean {
+  try { parse( formula ); return true }
+  catch { return false }
+}
