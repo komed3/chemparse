@@ -201,3 +201,42 @@ function parseSegment ( formula: string ) : ElementCounts {
 function normalizeFormula ( formula: string ) : string {
   return formula.replace( WHITESPACES_REGEX, '' ).replace( NORMALICE_REGEX, '$1.$2' );
 }
+
+
+export function parse ( formula: string ) : ChemParseResult {
+  if ( typeof formula !== 'string' ) throw new TypeError( 'Formula must be a string.' );
+
+  let normalized = normalizeFormula( formula );
+  if ( ! normalized ) throw new Error( 'Formula must not be empty.' );
+
+  const [ mainFormula, charge ] = parseCharge( normalized );
+  normalized = mainFormula;
+
+  const parts = normalized.split( /[·_]/ );
+  if ( parts.some( part => ! part ) ) throw new Error(
+    'Formula contains an empty hydrate segment.'
+  );
+
+  const counts: ElementCounts = {};
+
+  for ( let part of parts ) {
+    const leading = readNumber( part, 0 );
+    let multiplier = 1;
+
+    if ( leading ) multiplier = leading[ 0 ], part = part.slice( leading[ 1 ] );
+    if ( ! part ) continue;
+
+    mergeCounts( counts, parseSegment( part ), multiplier );
+  }
+
+  if ( Object.keys( counts ).length === 0 ) throw new Error(
+    'Formula must contain at least one element.'
+  );
+
+  const elementCounts: ElementCounts = {};
+
+  for ( const element of ELEMENT_SYMBOLS )
+    if ( element in counts ) elementCounts[ element ] = counts[ element ];
+
+  return charge === undefined ? { elementCounts } : { elementCounts, charge };
+}
