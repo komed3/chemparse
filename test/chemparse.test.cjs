@@ -84,4 +84,36 @@ test( 'parse', async t => {
     assert.deepEqual( parse( '2·3H2O' ), { elementCounts: { H: 12, O: 6 } } );
     assert.deepEqual( parse( '2H2O·3NaCl' ), { elementCounts: { H: 4, O: 2, Na: 3, Cl: 3 } } );
   } );
+
+  await t.test( 'decimal notation', () => {
+    assert.deepEqual( parse( 'C1.5O3' ), { elementCounts: { C: 1.5, O: 3 } } );
+    assert.deepEqual( parse( 'Mg(OH)1.5' ), { elementCounts: { H: 1.5, O: 1.5, Mg: 1 } } );
+    assert.deepEqual( parse( 'Fe2(SO4)1.5' ), { elementCounts: { O: 6, S: 1.5, Fe: 2 } } );
+    assert.deepEqual( parse( 'C1,5O3' ), { elementCounts: { C: 1.5, O: 3 } } );
+    assert.deepEqual( parse( '.5H2O' ), { elementCounts: { H: 1, O: 0.5 } } );
+  } );
+
+  await t.test( 'scientific notation', () => {
+    assert.deepEqual( parse( 'H2e-1O1e-1' ), { elementCounts: { H: 0.2, O: 0.1 } } );
+    assert.deepEqual( parse( 'C1e2O2.5e-1' ), { elementCounts: { C: 100, O: 0.25 } } );
+  } );
+
+  await t.test( 'whitespace normalization', () => {
+    assert.deepEqual( parse( ' H 2 O ' ), { elementCounts: { H: 2, O: 1 } } );
+    assert.deepEqual( parse( ' Ca ( OH ) 2 ' ), { elementCounts: { H: 2, O: 2, Ca: 1 } } );
+  } );
+
+  await t.test( 'ionic charges', () => {
+    assert.deepEqual( parse( 'SO4^2-' ), { elementCounts: { O: 4, S: 1 }, charge: -2 } );
+    assert.deepEqual( parse( 'NH4^+' ), { elementCounts: { H: 4, N: 1 }, charge: 1 } );
+    assert.deepEqual( parse( 'CH3COO^-' ), { elementCounts: { H: 3, C: 2, O: 2 }, charge: -1 } );
+    assert.deepEqual( parse( 'Fe(CN)6^3-' ), { elementCounts: { C: 6, N: 6, Fe: 1 }, charge: -3 } );
+  } );
+
+  await t.test( 'alternative charge notation', () => {
+    assert.deepEqual( parse( 'SO4^-2' ), { elementCounts: { O: 4, S: 1 }, charge: -2 } );
+    assert.deepEqual( parse( 'SO4^+2' ), { elementCounts: { O: 4, S: 1 }, charge: 2 } );
+    assert.deepEqual( parse( 'SO4²⁻' ), { elementCounts: { O: 4, S: 1 }, charge: -2 } );
+    assert.deepEqual( parse( 'NH4⁺' ), { elementCounts: { H: 4, N: 1 }, charge: 1 } );
+  } );
 } );
