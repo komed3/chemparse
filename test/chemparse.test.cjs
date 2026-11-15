@@ -116,4 +116,21 @@ test( 'parse', async t => {
     assert.deepEqual( parse( 'SO4²⁻' ), { elementCounts: { O: 4, S: 1 }, charge: -2 } );
     assert.deepEqual( parse( 'NH4⁺' ), { elementCounts: { H: 4, N: 1 }, charge: 1 } );
   } );
+
+  await t.test( 'invalid formulas', () => {
+    const invalid = [
+      '', ' ', '5', 'H0', 'H-1', 'H1e999', 'H1e308H1e308', 'Xx', 'Foo', 'H2O!', 'H^2', 'H^0+',
+      'H^999999999999999999999+', '()', '[]', '{}', 'H()', 'H[]', 'H{}', 'C([O})', 'C((O)', 'C(O))',
+      'Fe(,S)', 'Fe(S,)', 'Fe(S,,O)', 'Fe(,,S)', 'H,O', 'H2O·', '·H2O', 'H2O__NaCl', 'H2O·5'
+    ];
+
+    for ( const formula of invalid ) assert.throws( () => parse( formula ), undefined, formula );
+  } );
+
+  await t.test( 'invalid argument types', () => {
+    assert.throws( () => parse( null ), TypeError );
+    assert.throws( () => parse( undefined ), TypeError );
+    assert.throws( () => parse( 123 ), TypeError );
+    assert.throws( () => parse( {} ), TypeError );
+  } );
 } );
