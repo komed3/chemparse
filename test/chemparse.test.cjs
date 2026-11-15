@@ -39,3 +39,12 @@ test( 'exports', async t => {
     assert.equal( ELEMENT_SYMBOLS.length, 118 );
   } );
 } );
+
+
+test( 'parse', async t => {
+  await t.test( 'simple formulas', () => {
+    assert.deepEqual( parse( 'H2O' ), { elementCounts: { H: 2, O: 1 } } );
+    assert.deepEqual( parse( 'NaCl' ), { elementCounts: { Na: 1, Cl: 1 } } );
+    assert.deepEqual( parse( 'C6H12O6' ), { elementCounts: { H: 12, C: 6, O: 6 } } );
+  } );
+} );
