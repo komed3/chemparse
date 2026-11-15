@@ -114,27 +114,29 @@ function mergeCounts ( target: ElementCounts, source: ElementCounts, multiplier 
   }
 }
 
+/**
+ * Extracts an ionic charge from a formula.
+ *
+ * @returns The formula without its charge and the parsed charge, or undefined if none exists.
+ * @throws {Error} If the ionic charge is invalid.
+ */
 function parseCharge ( formula: string ) : [ string, number | undefined ] {
   const match = formula.match( CHANGE_REGEX );
   if ( ! match ) return [ formula, undefined ];
 
-  let value: number, sign: string;
+  const normalized = match[ 5 ] !== undefined
+    ? Array.from( match[ 5 ], c => SUPERSCRIPT_MAP[ c ] ).join( '' )
+    : match[ 3 ] !== undefined
+      ? `${ match[ 4 ] }${ match[ 3 ] }`
+      : `${ match[ 1 ] }${ match[ 2 ] }`;
 
-  if ( match[ 1 ] !== undefined || match[ 3 ] !== undefined ) {
-    value = Number( match[ 1 ] !== undefined ? ( match[ 1 ] ? match[ 1 ] : 1 ) : match[ 4 ] );
-    sign = match[ 2 ] || match[ 3 ];
-  } else {
-    const normalized = Array.from( match[ 5 ] ).map( c => SUPERSCRIPT_MAP[ c ] ).join( '' );
-    const parsed = normalized.match( NUMBER_SIGN_REGEX );
+  const parsed = normalized.match( NUMBER_SIGN_REGEX );
+  if ( ! parsed ) throw new Error( 'Invalid ionic charge.' );
 
-    if ( ! parsed ) throw new Error( 'Invalid ionic charge.' );
-
-    value = parsed[ 1 ] ? Number( parsed[ 1 ] ) : 1;
-    sign = parsed[ 2 ];
-  }
-
+  const value = Number( parsed[ 1 ] || 1 );
   if ( ! Number.isSafeInteger( value ) || value <= 0 ) throw new Error( 'Invalid ionic charge.' );
-  return [ formula.slice( 0, match.index ), sign === '+' ? value : -value ];
+
+  return [ formula.slice( 0, match.index ), parsed[ 2 ] === '+' ? value : -value ];
 }
 
 function parseSegment ( formula: string ) : ElementCounts {
