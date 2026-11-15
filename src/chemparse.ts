@@ -273,3 +273,13 @@ export function diff ( a: string, b: string ) : ChemParseResult {
 
   return charge === 0 ? { elementCounts } : { elementCounts, charge };
 }
+
+
+export default class ChemParse {
+  public static readonly ELEMENT_SYMBOLS = ELEMENT_SYMBOLS;
+
+  public static readonly parse = parse;
+  public static readonly validate = validate;
+  public static readonly compare = compare;
+  public static readonly diff = diff;
+}
