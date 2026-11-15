@@ -119,3 +119,79 @@ function parseCharge ( formula: string ) : [ string, number | undefined ] {
   if ( ! Number.isSafeInteger( value ) || value <= 0 ) throw new Error( 'Invalid ionic charge.' );
   return [ formula.slice( 0, match.index ), sign === '+' ? value : -value ];
 }
+
+function parseSegment ( formula: string ) : ElementCounts {
+  const stack: ParserFrame[] = [ { counts: {} } ];
+  let position = 0;
+
+  while ( position < formula.length ) {
+    const char = formula[ position ];
+
+    if ( char === '(' || char === '[' || char === '{' ) {
+      stack.push( { counts: {}, opener: char } );
+      position++;
+      continue;
+    }
+
+    if ( char === ')' || char === ']' || char === '}' ) {
+      if ( stack.length === 1 ) throw new Error(
+        `Unmatched closing bracket at position ${ position }.`
+      );
+
+      const frame = stack[ stack.length - 1 ];
+      const expected = char === ')' ? '(' : char === ']' ? '[' : '{';
+
+      if ( frame.opener !== expected ) throw new Error(
+        `Mismatched closing bracket at position ${ position }.`
+      );
+
+      if ( Object.keys( frame.counts ).length === 0 ) throw new Error(
+        'Empty groups are not allowed.'
+      );
+
+      stack.pop();
+      position++;
+
+      const parsed = readNumber( formula, position );
+      const multiplier = parsed?.[ 0 ] || 1;
+
+      if ( parsed ) position = parsed[ 1 ];
+
+      mergeCounts( stack[ stack.length - 1 ].counts, frame.counts, multiplier );
+      continue;
+    }
+
+    if ( char === ',' ) {
+      if ( stack.length === 1 ) throw new Error( `Invalid comma at position ${ position }.` );
+
+      position++;
+      continue;
+    }
+
+    if ( char >= 'A' && char <= 'Z' ) {
+      let end = position + 1;
+
+      while ( end < formula.length && formula[ end ] >= 'a' && formula[ end ] <= 'z' ) end++;
+
+      const element = formula.slice( position, end );
+      if ( ! ELEMENT_SET.has( element ) ) throw new Error(
+        `Unknown element symbol "${ element }".`
+      );
+
+      position = end;
+
+      const parsed = readNumber( formula, position );
+      const count = parsed?.[ 0 ] || 1;
+
+      if ( parsed ) position = parsed[ 1 ];
+
+      mergeCounts( stack[ stack.length - 1 ].counts, { [ element ]: count } );
+      continue;
+    }
+
+    throw new Error( `Invalid character "${ char }" at position ${ position }.` );
+  }
+
+  if ( stack.length !== 1 ) throw new Error( 'Unmatched opening bracket.' );
+  return stack[ 0 ].counts;
+}
