@@ -248,3 +248,15 @@ export function validate ( formula: string ) : boolean {
   try { parse( formula ); return true }
   catch { return false }
 }
+
+
+export function compare ( a: string, b: string ) : boolean {
+  const first = parse( a ), second = parse( b );
+  if ( ( first.charge || 0 ) !== ( second.charge || 0 ) ) return false;
+
+  for ( const element of ELEMENT_SYMBOLS )
+    if ( ( first.elementCounts[ element ] || 0 ) !== ( second.elementCounts[ element ] || 0 ) )
+      return false;
+
+  return true;
+}
