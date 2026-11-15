@@ -73,7 +73,7 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
 const WHITESPACES_REGEX = /\s+/g;
 const NORMALICE_REGEX = /([0-9]),([0-9])/g;
 const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
-const CHANGE_REGEX = /\^(\d*)([+-])$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u;
+const CHANGE_REGEX = /\^(?:(\d*)([+-])|([+-])(\d+))$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u;
 const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
 const PART_REGEX = /[·_]/;
 
@@ -108,13 +108,13 @@ function parseCharge ( formula: string ) : [ string, number | undefined ] {
 
   let value: number, sign: string;
 
-  if ( match[ 1 ] !== undefined ) {
-    value = match[ 1 ] ? Number( match[ 1 ] ) : 1;
-    sign = match[ 2 ];
+  if ( match[ 1 ] !== undefined || match[ 3 ] !== undefined ) {
+    value = Number( match[ 1 ] !== undefined ? ( match[ 1 ] ? match[ 1 ] : 1 ) : match[ 4 ] );
+    sign = match[ 2 ] || match[ 3 ];
   } else {
-    const normalized = Array.from( match[ 3 ] ).map( char => SUPERSCRIPT_MAP[ char ] ).join( '' );
-
+    const normalized = Array.from( match[ 5 ] ).map( c => SUPERSCRIPT_MAP[ c ] ).join( '' );
     const parsed = normalized.match( NUMBER_SIGN_REGEX );
+
     if ( ! parsed ) throw new Error( 'Invalid ionic charge.' );
 
     value = parsed[ 1 ] ? Number( parsed[ 1 ] ) : 1;
