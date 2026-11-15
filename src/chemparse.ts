@@ -70,11 +70,12 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁺': '+', '⁻': '-'
 };
 
+const WHITESPACES_REGEX = /\s+/g;
+const NORMALICE_REGEX = /([0-9]),([0-9])/g;
 const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
 const CHANGE_REGEX = /\^(\d*)([+-])$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u;
 const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
-const WHITESPACES_REGEX = /\s+/g;
-const NORMALICE_REGEX = /([0-9]),([0-9])/g;
+const PART_REGEX = /[·_]/;
 
 
 function readNumber ( value: string, position: number ) : [ number, number ] | undefined {
@@ -212,7 +213,7 @@ export function parse ( formula: string ) : ChemParseResult {
   const [ mainFormula, charge ] = parseCharge( normalized );
   normalized = mainFormula;
 
-  const parts = normalized.split( /[·_]/ );
+  const parts = normalized.split( PART_REGEX );
   if ( parts.some( part => ! part ) ) throw new Error(
     'Formula contains an empty hydrate segment.'
   );
@@ -235,9 +236,7 @@ export function parse ( formula: string ) : ChemParseResult {
 
   const elementCounts: ElementCounts = {};
 
-  for ( const el of ELEMENT_SYMBOLS )
-    if ( el in counts ) elementCounts[ el ] = counts[ el ];
-
+  for ( const el of ELEMENT_SYMBOLS ) if ( el in counts ) elementCounts[ el ] = counts[ el ];
   return charge === undefined ? { elementCounts } : { elementCounts, charge };
 }
 
@@ -288,7 +287,6 @@ export function diff ( a: string, b: string ) : ChemParseResult {
   }
 
   const charge = ( first.charge || 0 ) - ( second.charge || 0 );
-
   return charge === 0 ? { elementCounts } : { elementCounts, charge };
 }
 
