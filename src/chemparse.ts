@@ -63,13 +63,15 @@ const ELEMENT_SYMBOLS: ElementSymbol[] = [
 ];
 
 const ELEMENT_SET = new Set< string >( ELEMENT_SYMBOLS );
-const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
 const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
   '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
   '⁺': '+', '⁻': '-'
 };
 
+const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
+const CHANGE_REGEX = /\^(\d*)([+-])$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u;
+const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
 
 function readNumber ( value: string, position: number ) : [ number, number ] | undefined {
   const match = value.slice( position ).match( NUMBER_REGEX );
@@ -93,4 +95,27 @@ function mergeCounts ( target: ElementCounts, source: ElementCounts, multiplier 
 
     target[ element ] = result;
   }
+}
+
+function parseCharge ( formula: string ) : [ string, number | undefined ] {
+  const match = formula.match( CHANGE_REGEX );
+  if ( ! match ) return [ formula, undefined ];
+
+  let value: number, sign: string;
+
+  if ( match[ 1 ] !== undefined ) {
+    value = match[ 1 ] ? Number( match[ 1 ] ) : 1;
+    sign = match[ 2 ];
+  } else {
+    const normalized = Array.from( match[ 3 ] ).map( char => SUPERSCRIPT_MAP[ char ] ).join( '' );
+
+    const parsed = normalized.match( NUMBER_SIGN_REGEX );
+    if ( ! parsed ) throw new Error( 'Invalid ionic charge.' );
+
+    value = parsed[ 1 ] ? Number( parsed[ 1 ] ) : 1;
+    sign = parsed[ 2 ];
+  }
+
+  if ( ! Number.isSafeInteger( value ) || value <= 0 ) throw new Error( 'Invalid ionic charge.' );
+  return [ formula.slice( 0, match.index ), sign === '+' ? value : -value ];
 }
