@@ -114,6 +114,7 @@ export default class ChemParse {
     if ( ! Number.isFinite( value ) || value <= 0 ) throw new Error(
       `Invalid ${ context } "${ value }": counts must be finite and positive`
     );
+
     return value;
   }
 
@@ -196,7 +197,10 @@ export default class ChemParse {
         const top = stack[ stack.length - 1 ].counts;
 
         for ( const [ el, cnt ] of Object.entries( popped.counts ) )
-          top[ el as ElementSymbol ] = ( top[ el as ElementSymbol ] || 0 ) + cnt * multiplier;
+          top[ el as ElementSymbol ] = this.validateCount(
+            ( top[ el as ElementSymbol ] || 0 ) + cnt * multiplier,
+            `count for ${ el }`
+          );
 
         continue;
       }
@@ -223,7 +227,10 @@ export default class ChemParse {
         );
 
         const top = stack[ stack.length - 1 ].counts;
-        top[ element as ElementSymbol ] = ( top[ element as ElementSymbol ] || 0 ) + count;
+        top[ element as ElementSymbol ] = this.validateCount(
+          ( top[ element as ElementSymbol ] || 0 ) + count,
+          `count for ${ element }`
+        );
 
         continue;
       }
@@ -249,19 +256,20 @@ export default class ChemParse {
   public static parse ( formula: string ) : ChemParseResult {
     if ( typeof formula !== 'string' ) throw new TypeError( `Formula must be a string.` );
 
-    let mainFormula = formula.replace( /\s+/g, '' );
-    mainFormula = mainFormula.replace( /([0-9]),([0-9])/g, '$1.$2' );
+    let mainFormula = formula.replace( /\s+/g, '' ).replace( /([0-9]),([0-9])/g, '$1.$2' );
     let bracketDepth = 0;
+
     for ( let i = 0; i < mainFormula.length; i++ ) {
       if ( '([{'.includes( mainFormula[ i ] ) ) bracketDepth++;
       else if ( ')]}'.includes( mainFormula[ i ] ) ) bracketDepth--;
       else if ( mainFormula[ i ] === ',' && bracketDepth === 0 ) {
-        const prev = mainFormula[ i - 1 ];
-        const next = mainFormula[ i + 1 ];
-        if ( !prev || !next || !/[0-9]/.test( prev ) || !/[0-9]/.test( next ) )
+        const prev = mainFormula[ i - 1 ], next = mainFormula[ i + 1 ];
+
+        if ( ! prev || ! next || ! /[0-9]/.test( prev ) || ! /[0-9]/.test( next ) )
           throw new Error( `Invalid top-level comma in formula "${ formula }"` );
       }
     }
+
     mainFormula = mainFormula.replace( /,/g, '' );
 
     // Extract charge at the end (caret or superscript)
@@ -274,6 +282,7 @@ export default class ChemParse {
     const parts = mainFormula.replace( /_|\u00B7/g, '·' ).split( '·' );
     if ( parts.some( p => p.length === 0 ) )
       throw new Error( `Formula contains an empty hydrate segment.` );
+
     const counts: ElementCounts = {};
 
     for ( let part of parts ) {
@@ -282,10 +291,7 @@ export default class ChemParse {
       const leadingMatch = part.match( NUMBER_REGEX );
 
       if ( leadingMatch && leadingMatch.index === 0 ) {
-        leadingCoef = this.validateCount(
-          parseFloat( leadingMatch[ 1 ] ),
-          'leading coefficient'
-        );
+        leadingCoef = this.validateCount( parseFloat( leadingMatch[ 1 ] ), 'leading coefficient' );
         part = part.slice( leadingMatch[ 1 ].length );
 
         if ( part.length === 0 ) continue;
@@ -294,7 +300,10 @@ export default class ChemParse {
       const partCounts = this.parseCore( part );
 
       for ( const [ el, cnt ] of Object.entries( partCounts ) )
-        counts[ el as ElementSymbol ] = ( counts[ el as ElementSymbol ] || 0 ) + cnt * leadingCoef;
+        counts[ el as ElementSymbol ] = this.validateCount(
+          ( counts[ el as ElementSymbol ] || 0 ) + cnt * leadingCoef,
+          `count for ${ el }`
+        );
     }
 
     if ( Object.keys( counts ).length === 0 )
