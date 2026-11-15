@@ -361,13 +361,21 @@ export function diff ( a: string, b: string ) : ChemParseResult {
 }
 
 
+/** Provides a static API for parsing and comparing chemical formulas. */
 export default class ChemParse {
+  /** All supported chemical element symbols. */
   public static readonly ELEMENT_SYMBOLS = ELEMENT_SYMBOLS;
 
+  /** @see parse */
   public static readonly parse = parse;
+  /** @see validate */
   public static readonly validate = validate;
+  /** @see compare */
   public static readonly compare = compare;
+  /** @see compareMany */
   public static readonly compareMany = compareMany;
+  /** @see diff */
   public static readonly diff = diff;
+  /** @see diffMany */
   public static readonly diffMany = diffMany;
 }
