@@ -164,3 +164,115 @@ Available as a named export and as `ChemParse.ELEMENT_SYMBOLS`.
 console.log( ELEMENT_SYMBOLS.includes( 'Fe' ) ); // true
 console.log( ELEMENT_SYMBOLS.length ); // 118
 ```
+
+
+## Supported Formula Syntax
+
+### Basic formulas
+
+```text
+H2O
+NaMnO4
+C6H12O6
+Fe2O3
+```
+
+Element symbols are case-sensitive and must match one of the 118 supported IUPAC symbols.
+
+### Parentheses and nested groups
+
+Parentheses, square brackets, and curly brackets can be used to group elements.
+Groups can be nested and followed by a multiplier.
+
+```text
+Ca(OH)2
+(NH4)2SO4
+K4[Fe(CN)6]
+Al2(SO4)3
+{[Fe(CN)6]2}
+```
+
+Brackets must be correctly paired and nested. Empty groups and mismatched brackets are rejected.
+
+### Decimal and scientific notation
+
+Element counts, group multipliers, and leading coefficients support decimal and scientific notation.
+
+```text
+C1.5O3
+Mg(OH)1.5
+Fe2(SO4)1.5
+H2e-1O1e-1
+2.5H2O
+```
+
+Counts and multipliers must be finite and positive.
+
+### Hydrates and formula segments
+
+The middle dot (`·`) and underscore (`_`) separate formula segments.
+A coefficient at the beginning of a segment multiplies that segment.
+
+```text
+CuSO4·5H2O
+CuSO4_5H2O
+5·H2O
+2H2O
+```
+
+A coefficient can also appear as a separate segment before the separator.
+In that case, it multiplies the following segment.
+
+For example:
+
+```js
+parse( 'CuSO4·5H2O' ); // { elementCounts: { H: 10, O: 9, S: 1, Cu: 1 } }
+parse( '5·H2O' ); // { elementCounts: { H: 10, O: 5 } }
+```
+
+### Comma-separated element lists
+
+Commas can separate elements inside a group.
+Commas between digits are interpreted as decimal separators.
+
+```text
+Fe2(S,O4)
+Al2(S,O4)3
+```
+
+```js
+parse( 'Al2(S,O4)3' ); // { elementCounts: { O: 12, Al: 2, S: 3 } }
+```
+
+Comma-separated element lists are only supported inside groups.
+
+### Ionic charges
+
+Ionic charges can be expressed using caret notation or Unicode superscript characters.
+
+Supported caret notation:
+
+```text
+SO4^2-
+NH4^+
+CH3COO^-
+Fe(CN)6^3-
+SO4^-2
+```
+
+Supported Unicode superscript notation:
+
+```text
+SO4²⁻
+NH4⁺
+CH3COO⁻
+```
+
+The charge is returned as a signed integer:
+
+```js
+parse( 'SO4^2-' ); // { elementCounts: { O: 4, S: 1 }, charge: -2 }
+parse( 'NH4^+' ); // { elementCounts: { H: 4, N: 1 }, charge: 1 }
+```
+
+Formulas without an explicit charge do not contain a `charge` property in the result.
