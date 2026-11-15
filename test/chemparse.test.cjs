@@ -32,4 +32,10 @@ test( 'exports', async t => {
     assert.equal( typeof module.diffMany, 'function' );
     assert.ok( Array.isArray( module.ELEMENT_SYMBOLS ) );
   } );
+
+  await t.test( 'element symbols are immutable', () => {
+    assert.ok( Object.isFrozen( ELEMENT_SYMBOLS ) );
+    assert.equal( ChemParse.ELEMENT_SYMBOLS, ELEMENT_SYMBOLS );
+    assert.equal( ELEMENT_SYMBOLS.length, 118 );
+  } );
 } );
