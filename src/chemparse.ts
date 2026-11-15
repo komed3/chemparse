@@ -291,6 +291,31 @@ export function diff ( a: string, b: string ) : ChemParseResult {
 }
 
 
+export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formula: string } )[] {
+  if ( formulas.length < 2 ) throw new Error( 'At least two formulas must be provided.' );
+
+  const first = parse( formulas[ 0 ] );
+  const results: ( ChemParseResult & { formula: string } )[] = [];
+
+  for ( let i = 1; i < formulas.length; i++ ) {
+    const current = parse( formulas[ i ] );
+    const elementCounts: ElementCounts = {};
+
+    for ( const el of ELEMENT_SYMBOLS ) {
+      const diff = ( first.elementCounts[ el ] || 0 ) - ( current.elementCounts[ el ] || 0 );
+      if ( diff !== 0 ) elementCounts[ el ] = diff;
+    }
+
+    const charge = ( first.charge || 0 ) - ( current.charge || 0 );
+    results.push( charge === 0 ? { formula: formulas[ i ], elementCounts } : {
+      formula: formulas[ i ], elementCounts, charge
+    } );
+  }
+
+  return results;
+}
+
+
 export default class ChemParse {
   public static readonly ELEMENT_SYMBOLS = ELEMENT_SYMBOLS;
 
