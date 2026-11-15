@@ -20,35 +20,8 @@
 'use strict';
 
 
-export type ElementSymbol =
-  | 'H'  | 'He' | 'Li' | 'Be' | 'B'  | 'C'  | 'N'  | 'O'  | 'F'  | 'Ne'
-  | 'Na' | 'Mg' | 'Al' | 'Si' | 'P'  | 'S'  | 'Cl' | 'Ar' | 'K'  | 'Ca'
-  | 'Sc' | 'Ti' | 'V'  | 'Cr' | 'Mn' | 'Fe' | 'Co' | 'Ni' | 'Cu' | 'Zn'
-  | 'Ga' | 'Ge' | 'As' | 'Se' | 'Br' | 'Kr' | 'Rb' | 'Sr' | 'Y'  | 'Zr'
-  | 'Nb' | 'Mo' | 'Tc' | 'Ru' | 'Rh' | 'Pd' | 'Ag' | 'Cd' | 'In' | 'Sn'
-  | 'Sb' | 'Te' | 'I'  | 'Xe' | 'Cs' | 'Ba' | 'La' | 'Ce' | 'Pr' | 'Nd'
-  | 'Pm' | 'Sm' | 'Eu' | 'Gd' | 'Tb' | 'Dy' | 'Ho' | 'Er' | 'Tm' | 'Yb'
-  | 'Lu' | 'Hf' | 'Ta' | 'W'  | 'Re' | 'Os' | 'Ir' | 'Pt' | 'Au' | 'Hg'
-  | 'Tl' | 'Pb' | 'Bi' | 'Po' | 'At' | 'Rn' | 'Fr' | 'Ra' | 'Ac' | 'Th'
-  | 'Pa' | 'U'  | 'Np' | 'Pu' | 'Am' | 'Cm' | 'Bk' | 'Cf' | 'Es' | 'Fm'
-  | 'Md' | 'No' | 'Lr' | 'Rf' | 'Db' | 'Sg' | 'Bh' | 'Hs' | 'Mt' | 'Ds'
-  | 'Rg' | 'Cn' | 'Nh' | 'Fl' | 'Mc' | 'Lv' | 'Ts' | 'Og';
-
-export type ElementCounts = Partial< Record< ElementSymbol, number > >;
-
-export interface ChemParseResult {
-  elementCounts: ElementCounts;
-  charge?: number;
-}
-
-interface ParserFrame {
-  counts: ElementCounts;
-  opener?: string;
-  afterComma: boolean;
-}
-
-
-export const ELEMENT_SYMBOLS: readonly ElementSymbol[] = Object.freeze( [
+/** All supported IUPAC element symbols. */
+export const ELEMENT_SYMBOLS = Object.freeze( [
   'H',  'He', 'Li', 'Be', 'B',  'C',  'N',  'O',  'F',  'Ne',
   'Na', 'Mg', 'Al', 'Si', 'P',  'S',  'Cl', 'Ar', 'K',  'Ca',
   'Sc', 'Ti', 'V',  'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
@@ -61,8 +34,37 @@ export const ELEMENT_SYMBOLS: readonly ElementSymbol[] = Object.freeze( [
   'Pa', 'U',  'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
   'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
   'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'
-] );
+] as const );
 
+
+/** A supported chemical element symbol. */
+export type ElementSymbol = typeof ELEMENT_SYMBOLS[ number ];
+
+/** Element counts indexed by their chemical symbols. */
+export type ElementCounts = Partial< Record< ElementSymbol, number > >;
+
+/**
+ * Result of parsing a chemical formula.
+ *
+ * @property elementCounts Element counts indexed by their symbols.
+ * @property charge (optional) Ionic charge. Positive for cations, negative for anions.
+ */
+export interface ChemParseResult {
+  elementCounts: ElementCounts;
+  charge?: number;
+}
+
+
+// Internal parser types
+
+interface ParserFrame {
+  counts: ElementCounts;
+  opener?: string;
+  afterComma: boolean;
+}
+
+
+// Internal lookup and parsing constants
 
 const ELEMENT_SET = new Set< string >( ELEMENT_SYMBOLS );
 const SUPERSCRIPT_MAP: Record< string, string > = {
@@ -72,7 +74,7 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
 };
 
 const WHITESPACES_REGEX = /\s+/g;
-const NORMALICE_REGEX = /([0-9]),([0-9])/g;
+const NORMALIZE_REGEX = /([0-9]),([0-9])/g;
 const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
 const CHANGE_REGEX = /\^(?:(\d*)([+-])|([+-])(\d+))$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u;
 const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
@@ -209,7 +211,7 @@ function parseSegment ( formula: string ) : ElementCounts {
 }
 
 function normalizeFormula ( formula: string ) : string {
-  return formula.replace( WHITESPACES_REGEX, '' ).replace( NORMALICE_REGEX, '$1.$2' );
+  return formula.replace( WHITESPACES_REGEX, '' ).replace( NORMALIZE_REGEX, '$1.$2' );
 }
 
 
