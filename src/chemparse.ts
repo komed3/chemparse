@@ -32,7 +32,7 @@ export type ElementSymbol =
   | 'Tl' | 'Pb' | 'Bi' | 'Po' | 'At' | 'Rn' | 'Fr' | 'Ra' | 'Ac' | 'Th'
   | 'Pa' | 'U'  | 'Np' | 'Pu' | 'Am' | 'Cm' | 'Bk' | 'Cf' | 'Es' | 'Fm'
   | 'Md' | 'No' | 'Lr' | 'Rf' | 'Db' | 'Sg' | 'Bh' | 'Hs' | 'Mt' | 'Ds'
-  | 'Rg' | 'Cn' | 'Fl' | 'Lv' | 'Ts' | 'Og';
+  | 'Rg' | 'Cn' | 'Nh' | 'Fl' | 'Mc' | 'Lv' | 'Ts' | 'Og';
 
 export type ElementCounts = Partial< Record< ElementSymbol, number > >;
 
@@ -60,7 +60,7 @@ export const ELEMENT_SYMBOLS: readonly ElementSymbol[] = Object.freeze( [
   'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
   'Pa', 'U',  'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
   'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
-  'Rg', 'Cn', 'Fl', 'Lv', 'Ts', 'Og'
+  'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'
 ] );
 
 
