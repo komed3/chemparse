@@ -247,18 +247,6 @@ export function validate ( formula: string ) : boolean {
 }
 
 
-export function compare ( a: string, b: string ) : boolean {
-  const first = parse( a ), second = parse( b );
-  if ( first.charge !== second.charge ) return false;
-
-  for ( const el of ELEMENT_SYMBOLS )
-    if ( ( first.elementCounts[ el ] || 0 ) !== ( second.elementCounts[ el ] || 0 ) )
-      return false;
-
-  return true;
-}
-
-
 export function compareMany ( ...formulas: string[] ) : boolean {
   if ( formulas.length < 2 ) throw new Error( 'At least two formulas must be provided.' );
 
@@ -274,6 +262,11 @@ export function compareMany ( ...formulas: string[] ) : boolean {
   }
 
   return true;
+}
+
+
+export function compare ( a: string, b: string ) : boolean {
+  return compareMany( a, b );
 }
 
 
