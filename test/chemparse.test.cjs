@@ -19,4 +19,17 @@ test( 'exports', async t => {
     assert.equal( typeof diff, 'function' );
     assert.equal( typeof diffMany, 'function' );
   } );
+
+  await t.test( 'ESM exports', async () => {
+    const module = await import( '../dist/chemparse.mjs' );
+
+    assert.equal( typeof module.default, 'function' );
+    assert.equal( typeof module.parse, 'function' );
+    assert.equal( typeof module.validate, 'function' );
+    assert.equal( typeof module.compare, 'function' );
+    assert.equal( typeof module.compareMany, 'function' );
+    assert.equal( typeof module.diff, 'function' );
+    assert.equal( typeof module.diffMany, 'function' );
+    assert.ok( Array.isArray( module.ELEMENT_SYMBOLS ) );
+  } );
 } );
