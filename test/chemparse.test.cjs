@@ -47,4 +47,11 @@ test( 'parse', async t => {
     assert.deepEqual( parse( 'NaCl' ), { elementCounts: { Na: 1, Cl: 1 } } );
     assert.deepEqual( parse( 'C6H12O6' ), { elementCounts: { H: 12, C: 6, O: 6 } } );
   } );
+
+  await t.test( 'all IUPAC element symbols', () => {
+    assert.equal( ELEMENT_SYMBOLS.length, 118 );
+
+    for ( const symbol of ELEMENT_SYMBOLS )
+      assert.deepEqual( parse( symbol ), { elementCounts: { [ symbol ]: 1 } } );
+  } );
 } );
