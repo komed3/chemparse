@@ -9,7 +9,9 @@
  * Methods:
  *  - parse ( formula: string ) : ChemParseResult
  *  - validate ( formula: string ) : boolean
+ *  - compareMany ( ...formulas: string[] ) : boolean
  *  - compare ( a: string, b: string ) : boolean
+ *  - diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formula: string } )[]
  *  - diff ( a: string, b: string ) : ChemParseResult
  *
  * @author Paul Köhler (komed3)
