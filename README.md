@@ -345,3 +345,9 @@ const result: ChemParseResult = parse( 'H2O' );
 const symbols: readonly ElementSymbol[] = ChemParse.ELEMENT_SYMBOLS;
 const counts: ElementCounts = result.elementCounts;
 ```
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.  
+© Copyright 2025-2026 Paul Köhler (komed3).
