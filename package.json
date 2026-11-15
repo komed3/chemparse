@@ -1,8 +1,8 @@
 {
   "name": "chemparse",
-  "description": "Chemical formula parser; supports nested parentheses, decimal and scientific notation, dot-separated hydrate parts, IUPAC symbol validation",
+  "description": "Chemical formula parser with nested groups, hydrates, ionic charges, and composition comparison.",
   "license": "MIT",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "author": {
     "name": "komed3 (Paul Köhler)",
     "email": "webmaster@komed3.de",
@@ -40,13 +40,14 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build:cjs": "tsc -p tsconfig.cjs.json && mv ./dist/chemparse.js ./dist/chemparse.cjs",
-    "build:esm": "tsc -p tsconfig.esm.json && mv ./dist/chemparse.js ./dist/chemparse.mjs",
+    "build:cjs": "tsc -p tsconfig.cjs.json && node -e \"require('node:fs').renameSync('dist/chemparse.js', 'dist/chemparse.cjs')\"",
+    "build:esm": "tsc -p tsconfig.esm.json && node -e \"require('node:fs').renameSync('dist/chemparse.js', 'dist/chemparse.mjs')\"",
     "build:dts": "tsc -p tsconfig.dts.json",
     "build:all": "npm run build:cjs && npm run build:esm && npm run build:dts",
     "format": "prettier --ignore-path \"\" --write \"./dist/**/*\" --log-level warn",
     "build": "npm run clean && npm run build:all && npm run format",
     "prepublishOnly": "npm run build",
+    "test": "npm run build:cjs && npm run build:esm && npm run build:dts && node --test",
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
