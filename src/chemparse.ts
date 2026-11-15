@@ -277,20 +277,6 @@ export function compareMany ( ...formulas: string[] ) : boolean {
 }
 
 
-export function diff ( a: string, b: string ) : ChemParseResult {
-  const first = parse( a ), second = parse( b );
-  const elementCounts: ElementCounts = {};
-
-  for ( const el of ELEMENT_SYMBOLS ) {
-    const diff = ( first.elementCounts[ el ] || 0 ) - ( second.elementCounts[ el ] || 0 );
-    if ( diff !== 0 ) elementCounts[ el ] = diff;
-  }
-
-  const charge = ( first.charge || 0 ) - ( second.charge || 0 );
-  return charge === 0 ? { elementCounts } : { elementCounts, charge };
-}
-
-
 export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formula: string } )[] {
   if ( formulas.length < 2 ) throw new Error( 'At least two formulas must be provided.' );
 
@@ -301,10 +287,10 @@ export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formu
     const current = parse( formulas[ i ] );
     const elementCounts: ElementCounts = {};
 
-    for ( const el of ELEMENT_SYMBOLS ) {
-      const diff = ( first.elementCounts[ el ] || 0 ) - ( current.elementCounts[ el ] || 0 );
-      if ( diff !== 0 ) elementCounts[ el ] = diff;
-    }
+    for ( const el of ELEMENT_SYMBOLS )
+      if ( el in first.elementCounts || el in current.elementCounts )
+        elementCounts[ el ] = ( first.elementCounts[ el ] || 0 ) -
+          ( current.elementCounts[ el ] || 0 );
 
     const charge = ( first.charge || 0 ) - ( current.charge || 0 );
     results.push( charge === 0 ? { formula: formulas[ i ], elementCounts } : {
@@ -313,6 +299,12 @@ export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formu
   }
 
   return results;
+}
+
+
+export function diff ( a: string, b: string ) : ChemParseResult {
+  const [ { elementCounts, charge } ] = diffMany( a, b );
+  return charge === undefined ? { elementCounts } : { elementCounts, charge };
 }
 
 
