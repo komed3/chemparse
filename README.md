@@ -276,3 +276,40 @@ parse( 'NH4^+' ); // { elementCounts: { H: 4, N: 1 }, charge: 1 }
 ```
 
 Formulas without an explicit charge do not contain a `charge` property in the result.
+
+
+## Result Format
+
+`parse()` returns a `ChemParseResult` object:
+
+```ts
+interface ChemParseResult {
+  elementCounts: ElementCounts;
+  charge?: number;
+}
+```
+
+`ElementCounts` maps supported element symbols to their numerical counts:
+
+```ts
+type ElementCounts = Partial< Record< ElementSymbol, number > >;
+```
+
+The result contains only elements present in the formula.
+Element entries are ordered according to the periodic table.
+
+For example:
+
+```js
+parse( 'CuSO4·5H2O' );
+// {
+//   elementCounts: {
+//     H: 10,
+//     O: 9,
+//     S: 1,
+//     Cu: 1
+//   }
+// }
+```
+
+Difference results may also contain negative or zero element counts.
