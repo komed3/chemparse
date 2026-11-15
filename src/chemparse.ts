@@ -268,12 +268,25 @@ export function parse ( formula: string ) : ChemParseResult {
 }
 
 
+/**
+ * Checks whether a chemical formula is valid.
+ *
+ * @param formula The chemical formula to validate.
+ * @returns True if the formula is valid, otherwise false.
+ */
 export function validate ( formula: string ) : boolean {
   try { parse( formula ); return true }
   catch { return false }
 }
 
 
+/**
+ * Compares two or more chemical formulas for identical composition and charge.
+ *
+ * @param formulas The chemical formulas to compare (at least two).
+ * @returns True if all formulas have identical element counts and charge.
+ * @throws {Error} If fewer than two formulas are provided.
+ */
 export function compareMany ( ...formulas: string[] ) : boolean {
   if ( formulas.length < 2 ) throw new Error( 'At least two formulas must be provided.' );
 
@@ -292,25 +305,38 @@ export function compareMany ( ...formulas: string[] ) : boolean {
 }
 
 
+/**
+ * Compares two chemical formulas for identical composition and charge.
+ *
+ * @param a The first chemical formula.
+ * @param b The second chemical formula.
+ * @returns True if both formulas have identical element counts and charge.
+ */
 export function compare ( a: string, b: string ) : boolean {
   return compareMany( a, b );
 }
 
 
+/**
+ * Calculates the difference between the first formula and each subsequent formula.
+ *
+ * @param formulas The chemical formulas to compare (at least two).
+ * @returns The element count and charge differences for each subsequent formula.
+ * @throws {Error} If fewer than two formulas are provided.
+ */
 export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formula: string } )[] {
   if ( formulas.length < 2 ) throw new Error( 'At least two formulas must be provided.' );
 
-  const first = parse( formulas[ 0 ] );
+  const first = parse( formulas[ 0 ] ), firstCounts = first.elementCounts;
   const results: ( ChemParseResult & { formula: string } )[] = [];
 
   for ( let i = 1; i < formulas.length; i++ ) {
-    const current = parse( formulas[ i ] );
+    const current = parse( formulas[ i ] ), currentCounts = current.elementCounts;
     const elementCounts: ElementCounts = {};
 
     for ( const el of ELEMENT_SYMBOLS )
-      if ( el in first.elementCounts || el in current.elementCounts )
-        elementCounts[ el ] = ( first.elementCounts[ el ] || 0 ) -
-          ( current.elementCounts[ el ] || 0 );
+      if ( el in firstCounts || el in currentCounts )
+        elementCounts[ el ] = ( firstCounts[ el ] || 0 ) - ( currentCounts[ el ] || 0 );
 
     const charge = ( first.charge || 0 ) - ( current.charge || 0 );
     results.push( charge === 0 ? { formula: formulas[ i ], elementCounts } : {
@@ -322,6 +348,13 @@ export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formu
 }
 
 
+/**
+ * Calculates the difference between two chemical formulas.
+ *
+ * @param a The first chemical formula.
+ * @param b The second chemical formula.
+ * @returns The element count and charge differences.
+ */
 export function diff ( a: string, b: string ) : ChemParseResult {
   const [ { elementCounts, charge } ] = diffMany( a, b );
   return charge === undefined ? { elementCounts } : { elementCounts, charge };
