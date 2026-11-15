@@ -69,3 +69,16 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
   '⁺': '+', '⁻': '-'
 };
+
+
+function readNumber ( value: string, position: number ) : [ number, number ] | undefined {
+  const match = value.slice( position ).match( NUMBER_REGEX );
+  if ( ! match ) return undefined;
+
+  const number = Number( match[ 0 ] );
+  if ( ! Number.isFinite( number ) || number <= 0 ) throw new Error(
+    `Invalid count "${ match[ 0 ] }": counts must be finite and positive`
+  );
+
+  return [ number, position + match[ 0 ].length ];
+}
