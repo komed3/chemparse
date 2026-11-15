@@ -218,3 +218,13 @@ test( 'diff', async t => {
     assert.throws( () => diffMany( 'H2O', 'Xx' ) );
   } );
 } );
+
+
+test( 'class API', () => {
+  assert.deepEqual( ChemParse.parse( 'H2O' ), parse( 'H2O' ) );
+  assert.equal( ChemParse.validate( 'H2O' ), validate( 'H2O' ) );
+  assert.equal( ChemParse.compare( 'H2O', 'OH2' ), compare( 'H2O', 'OH2' ) );
+  assert.equal( ChemParse.compareMany( 'H2O', 'OH2' ), compareMany( 'H2O', 'OH2' ) );
+  assert.deepEqual( ChemParse.diff( 'H2O', 'H2' ), diff( 'H2O', 'H2' ) );
+  assert.deepEqual( ChemParse.diffMany( 'H2O', 'H2' ), diffMany( 'H2O', 'H2' ) );
+} );
