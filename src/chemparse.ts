@@ -72,6 +72,8 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
 const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
 const CHANGE_REGEX = /\^(\d*)([+-])$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u;
 const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
+const WHITESPACES_REGEX = /\s+/g;
+const NORMALICE_REGEX = /([0-9]),([0-9])/g;
 
 function readNumber ( value: string, position: number ) : [ number, number ] | undefined {
   const match = value.slice( position ).match( NUMBER_REGEX );
@@ -194,4 +196,8 @@ function parseSegment ( formula: string ) : ElementCounts {
 
   if ( stack.length !== 1 ) throw new Error( 'Unmatched opening bracket.' );
   return stack[ 0 ].counts;
+}
+
+function normalizeFormula ( formula: string ) : string {
+  return formula.replace( WHITESPACES_REGEX, '' ).replace( NORMALICE_REGEX, '$1.$2' );
 }
