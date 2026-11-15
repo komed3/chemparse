@@ -44,6 +44,7 @@ export interface ChemParseResult {
 interface ParserFrame {
   counts: ElementCounts;
   opener?: string;
+  afterComma: boolean;
 }
 
 
@@ -126,14 +127,15 @@ function parseCharge ( formula: string ) : [ string, number | undefined ] {
 }
 
 function parseSegment ( formula: string ) : ElementCounts {
-  const stack: ParserFrame[] = [ { counts: {} } ];
+  const stack: ParserFrame[] = [ { counts: {}, afterComma: false } ];
   let position = 0;
 
   while ( position < formula.length ) {
     const char = formula[ position ];
 
     if ( char === '(' || char === '[' || char === '{' ) {
-      stack.push( { counts: {}, opener: char } );
+      stack[ stack.length - 1 ].afterComma = false;
+      stack.push( { counts: {}, opener: char, afterComma: false } );
       position++;
       continue;
     }
@@ -143,16 +145,18 @@ function parseSegment ( formula: string ) : ElementCounts {
         `Unmatched closing bracket at position ${ position }.`
       );
 
-      const frame = stack[ stack.length - 1 ];
+      const { opener, counts, afterComma } = stack[ stack.length - 1 ];
       const expected = char === ')' ? '(' : char === ']' ? '[' : '{';
 
-      if ( frame.opener !== expected ) throw new Error(
+      if ( opener !== expected ) throw new Error(
         `Mismatched closing bracket at position ${ position }.`
       );
 
-      if ( Object.keys( frame.counts ).length === 0 ) throw new Error(
+      if ( Object.keys( counts ).length === 0 ) throw new Error(
         'Empty groups are not allowed.'
       );
+
+      if ( afterComma ) throw new Error( `Invalid comma at position ${ position - 1 }.` );
 
       stack.pop();
       position++;
@@ -162,13 +166,17 @@ function parseSegment ( formula: string ) : ElementCounts {
 
       if ( parsed ) position = parsed[ 1 ];
 
-      mergeCounts( stack[ stack.length - 1 ].counts, frame.counts, multiplier );
+      mergeCounts( stack[ stack.length - 1 ].counts, counts, multiplier );
       continue;
     }
 
     if ( char === ',' ) {
-      if ( stack.length === 1 ) throw new Error( `Invalid comma at position ${ position }.` );
+      const frame = stack[ stack.length - 1 ];
 
+      if ( stack.length === 1 || frame.afterComma || Object.keys( frame.counts ).length === 0 )
+        throw new Error( `Invalid comma at position ${ position }.` );
+
+      frame.afterComma = true;
       position++;
       continue;
     }
@@ -188,6 +196,7 @@ function parseSegment ( formula: string ) : ElementCounts {
 
       if ( parsed ) position = parsed[ 1 ];
 
+      stack[ stack.length - 1 ].afterComma = false;
       mergeCounts( stack[ stack.length - 1 ].counts, { [ el ]: count } );
       continue;
     }
@@ -219,14 +228,31 @@ export function parse ( formula: string ) : ChemParseResult {
   );
 
   const counts: ElementCounts = {};
+  let pendingMultiplier = 1;
 
-  for ( let part of parts ) {
+  for ( let i = 0; i < parts.length; i++ ) {
+    let part = parts[ i ], multiplier = pendingMultiplier;
     const leading = readNumber( part, 0 );
-    let multiplier = 1;
 
-    if ( leading ) multiplier = leading[ 0 ], part = part.slice( leading[ 1 ] );
-    if ( ! part ) continue;
+    if ( leading ) {
+      multiplier *= leading[ 0 ];
+      part = part.slice( leading[ 1 ] );
+    }
 
+    if ( ! Number.isFinite( multiplier ) || multiplier <= 0 ) throw new Error(
+      'Invalid hydrate multiplier.'
+    );
+
+    if ( ! part ) {
+      if ( i === parts.length - 1 ) throw new Error(
+        'Formula contains a hydrate coefficient without a following segment.'
+      );
+
+      pendingMultiplier = multiplier;
+      continue;
+    }
+
+    pendingMultiplier = 1;
     mergeCounts( counts, parseSegment( part ), multiplier );
   }
 
