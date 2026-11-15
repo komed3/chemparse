@@ -98,13 +98,17 @@ function readNumber ( value: string, position: number ) : [ number, number ] | u
   return [ number, position + match[ 0 ].length ];
 }
 
+/**
+ * Adds element counts to a target, applying an optional multiplier.
+ *
+ * @throws {Error} If a resulting element count is not finite or positive.
+ */
 function mergeCounts ( target: ElementCounts, source: ElementCounts, multiplier = 1 ) : void {
   for ( const [ el, count ] of Object.entries( source ) as [ ElementSymbol, number ][] ) {
     const result = ( target[ el ] || 0 ) + count * multiplier;
 
-    if ( ! Number.isFinite( result ) || result <= 0 ) throw new Error(
-      `Invalid count for ${ el }: counts must be finite and positive`
-    );
+    if ( ! Number.isFinite( result ) || result <= 0 )
+      throw new Error( `Invalid count for ${ el }: counts must be finite and positive` );
 
     target[ el ] = result;
   }
