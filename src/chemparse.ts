@@ -90,14 +90,14 @@ function readNumber ( value: string, position: number ) : [ number, number ] | u
 }
 
 function mergeCounts ( target: ElementCounts, source: ElementCounts, multiplier = 1 ) : void {
-  for ( const [ element, count ] of Object.entries( source ) as [ ElementSymbol, number ][] ) {
-    const result = ( target[ element ] || 0 ) + count * multiplier;
+  for ( const [ el, count ] of Object.entries( source ) as [ ElementSymbol, number ][] ) {
+    const result = ( target[ el ] || 0 ) + count * multiplier;
 
     if ( ! Number.isFinite( result ) || result <= 0 ) throw new Error(
-      `Invalid count for ${ element }: counts must be finite and positive`
+      `Invalid count for ${ el }: counts must be finite and positive`
     );
 
-    target[ element ] = result;
+    target[ el ] = result;
   }
 }
 
@@ -177,10 +177,8 @@ function parseSegment ( formula: string ) : ElementCounts {
 
       while ( end < formula.length && formula[ end ] >= 'a' && formula[ end ] <= 'z' ) end++;
 
-      const element = formula.slice( position, end );
-      if ( ! ELEMENT_SET.has( element ) ) throw new Error(
-        `Unknown element symbol "${ element }".`
-      );
+      const el = formula.slice( position, end );
+      if ( ! ELEMENT_SET.has( el ) ) throw new Error( `Unknown element symbol "${ el }".` );
 
       position = end;
 
@@ -189,7 +187,7 @@ function parseSegment ( formula: string ) : ElementCounts {
 
       if ( parsed ) position = parsed[ 1 ];
 
-      mergeCounts( stack[ stack.length - 1 ].counts, { [ element ]: count } );
+      mergeCounts( stack[ stack.length - 1 ].counts, { [ el ]: count } );
       continue;
     }
 
@@ -237,8 +235,8 @@ export function parse ( formula: string ) : ChemParseResult {
 
   const elementCounts: ElementCounts = {};
 
-  for ( const element of ELEMENT_SYMBOLS )
-    if ( element in counts ) elementCounts[ element ] = counts[ element ];
+  for ( const el of ELEMENT_SYMBOLS )
+    if ( el in counts ) elementCounts[ el ] = counts[ el ];
 
   return charge === undefined ? { elementCounts } : { elementCounts, charge };
 }
@@ -254,8 +252,8 @@ export function compare ( a: string, b: string ) : boolean {
   const first = parse( a ), second = parse( b );
   if ( ( first.charge || 0 ) !== ( second.charge || 0 ) ) return false;
 
-  for ( const element of ELEMENT_SYMBOLS )
-    if ( ( first.elementCounts[ element ] || 0 ) !== ( second.elementCounts[ element ] || 0 ) )
+  for ( const el of ELEMENT_SYMBOLS )
+    if ( ( first.elementCounts[ el ] || 0 ) !== ( second.elementCounts[ el ] || 0 ) )
       return false;
 
   return true;
@@ -266,9 +264,9 @@ export function diff ( a: string, b: string ) : ChemParseResult {
   const first = parse( a ), second = parse( b );
   const elementCounts: ElementCounts = {};
 
-  for ( const element of ELEMENT_SYMBOLS ) {
-    const diff = ( first.elementCounts[ element ] || 0 ) - ( second.elementCounts[ element ] || 0 );
-    if ( diff !== 0 ) elementCounts[ element ] = diff;
+  for ( const el of ELEMENT_SYMBOLS ) {
+    const diff = ( first.elementCounts[ el ] || 0 ) - ( second.elementCounts[ el ] || 0 );
+    if ( diff !== 0 ) elementCounts[ el ] = diff;
   }
 
   const charge = ( first.charge || 0 ) - ( second.charge || 0 );
