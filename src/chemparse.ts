@@ -47,7 +47,7 @@ interface ParserFrame {
 }
 
 
-const ELEMENT_SYMBOLS: ElementSymbol[] = [
+export const ELEMENT_SYMBOLS: ElementSymbol[] = [
   'H',  'He', 'Li', 'Be', 'B',  'C',  'N',  'O',  'F',  'Ne',
   'Na', 'Mg', 'Al', 'Si', 'P',  'S',  'Cl', 'Ar', 'K',  'Ca',
   'Sc', 'Ti', 'V',  'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
@@ -62,6 +62,7 @@ const ELEMENT_SYMBOLS: ElementSymbol[] = [
   'Rg', 'Cn', 'Fl', 'Lv', 'Ts', 'Og'
 ];
 
+
 const ELEMENT_SET = new Set< string >( ELEMENT_SYMBOLS );
 const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
@@ -74,6 +75,7 @@ const CHANGE_REGEX = /\^(\d*)([+-])$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u
 const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
 const WHITESPACES_REGEX = /\s+/g;
 const NORMALICE_REGEX = /([0-9]),([0-9])/g;
+
 
 function readNumber ( value: string, position: number ) : [ number, number ] | undefined {
   const match = value.slice( position ).match( NUMBER_REGEX );
