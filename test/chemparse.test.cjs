@@ -180,3 +180,41 @@ test( 'compare', async t => {
     assert.throws( () => compare( 'H2O', 'Xx' ) );
   } );
 } );
+
+
+test( 'diff', async t => {
+  await t.test( 'element count differences', () => {
+    assert.deepEqual( diff( 'C6H12O6', 'C1.5O3' ), { elementCounts: { H: 12, C: 4.5, O: 3 } } );
+    assert.deepEqual( diff( 'H2O', 'H2' ), { elementCounts: { H: 0, O: 1 } } );
+    assert.deepEqual( diff( 'NaCl', 'KCl' ), { elementCounts: { Na: 1, K: -1, Cl: 0 } } );
+  } );
+
+  await t.test( 'charge differences', () => {
+    assert.deepEqual( diff( 'Na^+', 'Cl^-' ), { elementCounts: { Na: 1, Cl: -1 }, charge: 2 } );
+    assert.deepEqual( diff( 'SO4^2-', 'SO4^-' ), { elementCounts: { O: 0, S: 0 }, charge: -1 } );
+  } );
+
+  await t.test( 'diffMany', () => {
+    assert.deepEqual( diffMany( 'H2O', 'H2', 'O2' ), [
+      { formula: 'H2', elementCounts: { H: 0, O: 1 } },
+      { formula: 'O2', elementCounts: { H: 2, O: -1 } }
+    ] );
+  } );
+
+  await t.test( 'diffMany includes charge differences', () => {
+    assert.deepEqual( diffMany( 'Na^+', 'Cl^-', 'Na^-' ), [
+      { formula: 'Cl^-', elementCounts: { Na: 1, Cl: -1 }, charge: 2 },
+      { formula: 'Na^-', elementCounts: { Na: 0 }, charge: 2 }
+    ] );
+  } );
+
+  await t.test( 'requires at least two formulas', () => {
+    assert.throws( () => diffMany() );
+    assert.throws( () => diffMany( 'H2O' ) );
+  } );
+
+  await t.test( 'invalid formulas throw', () => {
+    assert.throws( () => diff( 'H2O', 'Xx' ) );
+    assert.throws( () => diffMany( 'H2O', 'Xx' ) );
+  } );
+} );
