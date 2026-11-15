@@ -216,40 +216,39 @@ function normalizeFormula ( formula: string ) : string {
 }
 
 
+/**
+ * Parses a chemical formula into its element counts and optional ionic charge.
+ *
+ * @param formula The chemical formula to parse.
+ * @returns The parsed element counts and optional ionic charge.
+ * @throws {TypeError} If the formula is not a string.
+ * @throws {Error} If the formula or any of its segments is invalid.
+ */
 export function parse ( formula: string ) : ChemParseResult {
   if ( typeof formula !== 'string' ) throw new TypeError( 'Formula must be a string.' );
 
-  let normalized = normalizeFormula( formula );
+  const normalized = normalizeFormula( formula );
   if ( ! normalized ) throw new Error( 'Formula must not be empty.' );
 
   const [ mainFormula, charge ] = parseCharge( normalized );
-  normalized = mainFormula;
+  const parts = mainFormula.split( PART_REGEX );
 
-  const parts = normalized.split( PART_REGEX );
-  if ( parts.some( part => ! part ) ) throw new Error(
-    'Formula contains an empty hydrate segment.'
-  );
+  if ( parts.some( p => ! p ) ) throw new Error( 'Formula contains an empty hydrate segment.' );
 
   const counts: ElementCounts = {};
   let pendingMultiplier = 1;
 
   for ( let i = 0; i < parts.length; i++ ) {
-    let part = parts[ i ], multiplier = pendingMultiplier;
-    const leading = readNumber( part, 0 );
+    const leading = readNumber( parts[ i ], 0 );
+    const part = leading ? parts[ i ].slice( leading[ 1 ] ) : parts[ i ];
+    const multiplier = pendingMultiplier * ( leading?.[ 0 ] || 1 );
 
-    if ( leading ) {
-      multiplier *= leading[ 0 ];
-      part = part.slice( leading[ 1 ] );
-    }
-
-    if ( ! Number.isFinite( multiplier ) || multiplier <= 0 ) throw new Error(
-      'Invalid hydrate multiplier.'
-    );
+    if ( ! Number.isFinite( multiplier ) || multiplier <= 0 )
+      throw new Error( 'Invalid hydrate multiplier.' );
 
     if ( ! part ) {
-      if ( i === parts.length - 1 ) throw new Error(
-        'Formula contains a hydrate coefficient without a following segment.'
-      );
+      if ( i === parts.length - 1 )
+        throw new Error( 'Formula contains a hydrate coefficient without a following segment.' );
 
       pendingMultiplier = multiplier;
       continue;
@@ -259,13 +258,12 @@ export function parse ( formula: string ) : ChemParseResult {
     mergeCounts( counts, parseSegment( part ), multiplier );
   }
 
-  if ( Object.keys( counts ).length === 0 ) throw new Error(
-    'Formula must contain at least one element.'
-  );
+  if ( ! Object.keys( counts ).length )
+    throw new Error( 'Formula must contain at least one element.' );
 
   const elementCounts: ElementCounts = {};
-
   for ( const el of ELEMENT_SYMBOLS ) if ( el in counts ) elementCounts[ el ] = counts[ el ];
+
   return charge === undefined ? { elementCounts } : { elementCounts, charge };
 }
 
