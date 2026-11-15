@@ -322,5 +322,7 @@ export default class ChemParse {
   public static readonly parse = parse;
   public static readonly validate = validate;
   public static readonly compare = compare;
+  public static readonly compareMany = compareMany;
   public static readonly diff = diff;
+  public static readonly diffMany = diffMany;
 }
