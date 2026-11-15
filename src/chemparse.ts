@@ -82,3 +82,15 @@ function readNumber ( value: string, position: number ) : [ number, number ] | u
 
   return [ number, position + match[ 0 ].length ];
 }
+
+function mergeCounts ( target: ElementCounts, source: ElementCounts, multiplier = 1 ) : void {
+  for ( const [ element, count ] of Object.entries( source ) as [ ElementSymbol, number ][] ) {
+    const result = ( target[ element ] || 0 ) + count * multiplier;
+
+    if ( ! Number.isFinite( result ) || result <= 0 ) throw new Error(
+      `Invalid count for ${ element }: counts must be finite and positive`
+    );
+
+    target[ element ] = result;
+  }
+}
