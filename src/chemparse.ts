@@ -210,6 +210,7 @@ function parseSegment ( formula: string ) : ElementCounts {
   return stack[ 0 ].counts;
 }
 
+/** Normalizes a formula by removing whitespace and replacing commas with dots. */
 function normalizeFormula ( formula: string ) : string {
   return formula.replace( WHITESPACES_REGEX, '' ).replace( NORMALIZE_REGEX, '$1.$2' );
 }
