@@ -40,8 +40,8 @@
   },
   "scripts": {
     "clean": "rimraf dist",
-    "build:cjs": "tsc -p tsconfig.cjs.json && mv ./dist/chemparse.js ./dist/chemparse.cjs",
-    "build:esm": "tsc -p tsconfig.esm.json && mv ./dist/chemparse.js ./dist/chemparse.mjs",
+    "build:cjs": "tsc -p tsconfig.cjs.json && node -e \"require('node:fs').renameSync('dist/chemparse.js', 'dist/chemparse.cjs')\"",
+    "build:esm": "tsc -p tsconfig.esm.json && node -e \"require('node:fs').renameSync('dist/chemparse.js', 'dist/chemparse.mjs')\"",
     "build:dts": "tsc -p tsconfig.dts.json",
     "build:all": "npm run build:cjs && npm run build:esm && npm run build:dts",
     "format": "prettier --ignore-path \"\" --write \"./dist/**/*\" --log-level warn",
