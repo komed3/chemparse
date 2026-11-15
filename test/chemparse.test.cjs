@@ -134,3 +134,18 @@ test( 'parse', async t => {
     assert.throws( () => parse( {} ), TypeError );
   } );
 } );
+
+
+test( 'validate', () => {
+  assert.equal( validate( 'H2O' ), true );
+  assert.equal( validate( 'CuSO4·5H2O' ), true );
+  assert.equal( validate( 'Fe2(S,O4)' ), true );
+  assert.equal( validate( 'SO4^2-' ), true );
+
+  assert.equal( validate( '' ), false );
+  assert.equal( validate( 'H0' ), false );
+  assert.equal( validate( 'Xx' ), false );
+  assert.equal( validate( 'Fe(,S)' ), false );
+  assert.equal( validate( 'H2O·5' ), false );
+  assert.equal( validate( null ), false );
+} );
