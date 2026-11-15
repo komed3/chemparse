@@ -56,3 +56,11 @@ const ELEMENT_SYMBOLS: ElementSymbol[] = [
   'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
   'Rg', 'Cn', 'Fl', 'Lv', 'Ts', 'Og'
 ];
+
+const ELEMENT_SET = new Set< string >( ELEMENT_SYMBOLS );
+const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
+const SUPERSCRIPT_MAP: Record< string, string > = {
+  '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
+  '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
+  '⁺': '+', '⁻': '-'
+};
