@@ -1,6 +1,6 @@
 {
   "name": "chemparse",
-  "description": "Chemical formula parser; supports nested parentheses, decimal and scientific notation, dot-separated hydrate parts, IUPAC symbol validation",
+  "description": "Chemical formula parser with nested groups, hydrates, ionic charges, and composition comparison.",
   "license": "MIT",
   "version": "1.1.0",
   "author": {
