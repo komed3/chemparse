@@ -81,14 +81,19 @@ const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
 const PART_REGEX = /[·_]/;
 
 
+/**
+ * Reads a positive finite number at the given position.
+ *
+ * @returns The parsed number and the next position, or undefined if no number starts at the given position.
+ * @throws {Error} If the parsed number is not finite or positive.
+ */
 function readNumber ( value: string, position: number ) : [ number, number ] | undefined {
   const match = value.slice( position ).match( NUMBER_REGEX );
   if ( ! match ) return undefined;
 
   const number = Number( match[ 0 ] );
-  if ( ! Number.isFinite( number ) || number <= 0 ) throw new Error(
-    `Invalid count "${ match[ 0 ] }": counts must be finite and positive`
-  );
+  if ( ! Number.isFinite( number ) || number <= 0 )
+    throw new Error( `Invalid count "${ match[ 0 ] }": counts must be finite and positive` );
 
   return [ number, position + match[ 0 ].length ];
 }
