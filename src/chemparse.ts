@@ -260,3 +260,18 @@ export function compare ( a: string, b: string ) : boolean {
 
   return true;
 }
+
+
+export function diff ( a: string, b: string ) : ChemParseResult {
+  const first = parse( a ), second = parse( b );
+  const elementCounts: ElementCounts = {};
+
+  for ( const element of ELEMENT_SYMBOLS ) {
+    const diff = ( first.elementCounts[ element ] || 0 ) - ( second.elementCounts[ element ] || 0 );
+    if ( diff !== 0 ) elementCounts[ element ] = diff;
+  }
+
+  const charge = ( first.charge || 0 ) - ( second.charge || 0 );
+
+  return charge === 0 ? { elementCounts } : { elementCounts, charge };
+}
