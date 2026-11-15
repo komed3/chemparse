@@ -331,3 +331,17 @@ Difference results may also contain negative or zero element counts.
 - Invalid ionic charges
 
 `validate()` can be used when a boolean result is preferred over exception handling.
+
+
+## TypeScript
+
+ChemParse includes declaration files and exports its public types:
+
+```ts
+import type { ChemParseResult, ElementCounts, ElementSymbol } from 'chemparse';
+import ChemParse, { parse } from 'chemparse';
+
+const result: ChemParseResult = parse( 'H2O' );
+const symbols: readonly ElementSymbol[] = ChemParse.ELEMENT_SYMBOLS;
+const counts: ElementCounts = result.elementCounts;
+```
