@@ -54,4 +54,22 @@ test( 'parse', async t => {
     for ( const symbol of ELEMENT_SYMBOLS )
       assert.deepEqual( parse( symbol ), { elementCounts: { [ symbol ]: 1 } } );
   } );
+
+  await t.test( 'parentheses and groups', () => {
+    assert.deepEqual( parse( 'Ca(OH)2' ), { elementCounts: { H: 2, O: 2, Ca: 1 } } );
+    assert.deepEqual( parse( '(NH4)2SO4' ), { elementCounts: { H: 8, N: 2, O: 4, S: 1 } } );
+    assert.deepEqual( parse( 'Al2(SO4)3' ), { elementCounts: { O: 12, Al: 2, S: 3 } } );
+  } );
+
+  await t.test( 'nested groups and brackets', () => {
+    assert.deepEqual( parse( 'K4[Fe(CN)6]' ), { elementCounts: { C: 6, N: 6, K: 4, Fe: 1 } } );
+    assert.deepEqual( parse( 'Ca3[Co(OH)6]2' ), { elementCounts: { H: 12, O: 12, Ca: 3, Co: 2 } } );
+    assert.deepEqual( parse( '{[H2O]2}3' ), { elementCounts: { H: 12, O: 6 } } );
+  } );
+
+  await t.test( 'comma-separated elements in groups', () => {
+    assert.deepEqual( parse( 'Fe2(S,O4)' ), { elementCounts: { O: 4, S: 1, Fe: 2 } } );
+    assert.deepEqual( parse( 'Al2(S,O4)3' ), { elementCounts: { O: 12, Al: 2, S: 3 } } );
+    assert.deepEqual( parse( 'Fe(S,(O))' ), { elementCounts: { O: 1, S: 1, Fe: 1 } } );
+  } );
 } );
