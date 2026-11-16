@@ -250,9 +250,20 @@ export function parse ( formula: string ) : ChemParseResult {
   const normalized = normalizeFormula( formula );
   if ( ! normalized ) throw new Error( 'Formula must not be empty.' );
 
-  const [ mainFormula, charge ] = parseCharge( normalized );
-  const parts = mainFormula.split( PART_REGEX );
+  const mapped = PARTICLE_MAP[ normalized as ParticleSymbol ]
+    ? `${ normalized }${ PARTICLE_MAP[ normalized as ParticleSymbol ] }`
+    : normalized;
 
+  const [ mainFormula, charge ] = parseCharge( mapped );
+  const leading = readNumber( mainFormula, 0 );
+  const particle = leading ? mainFormula.slice( leading[ 1 ] ) : mainFormula;
+
+  if ( PARTICLE_SET.has( particle ) ) return {
+    particleCounts: { [ particle as ParticleSymbol ]: leading?.[ 0 ] || 1 },
+    elementCounts: {}, ...( charge === undefined ? {} : { charge } )
+  };
+
+  const parts = mainFormula.split( PART_REGEX );
   if ( parts.some( p => ! p ) ) throw new Error( 'Formula contains an empty hydrate segment.' );
 
   const counts: ElementCounts = {};
