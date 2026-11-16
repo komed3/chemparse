@@ -413,6 +413,8 @@ export function diff ( a: string, b: string ) : ChemParseResult {
 export default class ChemParse {
   /** All supported chemical element symbols. */
   public static readonly ELEMENT_SYMBOLS = ELEMENT_SYMBOLS;
+  /** All supported particles symbols. */
+  public static readonly PARTICLE_SYMBOLS = PARTICLE_SYMBOLS;
 
   /** @see parse */
   public static readonly parse = parse;
