@@ -118,9 +118,16 @@ test( 'parse', async t => {
   } );
 
   await t.test( 'alternative charge notation', () => {
-    assert.deepEqual( parse( 'SO4^-2' ), { elementCounts: { O: 4, S: 1 }, charge: -2 } );
-    assert.deepEqual( parse( 'SO4^+2' ), { elementCounts: { O: 4, S: 1 }, charge: 2 } );
-    assert.deepEqual( parse( 'SO4²⁻' ), { elementCounts: { O: 4, S: 1 }, charge: -2 } );
+    const negative = [ 'SO4^-2', 'SO4^2−', 'SO4^−2', 'SO4²⁻', 'SO4⁻²' ];
+
+    for ( const formula of negative )
+      assert.deepEqual( parse( formula ), { elementCounts: { O: 4, S: 1 }, charge: -2 }, formula );
+
+    const positive = [ 'SO4^+2', 'SO4^2+', 'SO4²⁺', 'SO4⁺²' ];
+
+    for ( const formula of positive )
+      assert.deepEqual( parse( formula ), { elementCounts: { O: 4, S: 1 }, charge: 2 }, formula );
+
     assert.deepEqual( parse( 'NH4⁺' ), { elementCounts: { H: 4, N: 1 }, charge: 1 } );
   } );
 
@@ -162,12 +169,29 @@ test( 'particles', async t => {
     assert.deepEqual( parse( 'ν̄' ), { elementCounts: {}, particleCounts: { 'ν̄': 1 } } );
   } );
 
+  await t.test( 'electron charge notation', () => {
+    const formulas = [
+      'e-', 'e^-', 'e^-1', 'e^1-',
+      'e⁻', 'e⁻¹', 'e¹⁻',
+      'e−', 'e^−', 'e^−1', 'e^1−'
+    ];
+
+    for ( const formula of formulas ) {
+      assert.deepEqual( parse( formula ), { elementCounts: {}, particleCounts: { e: 1 }, charge: -1 }, formula );
+      assert.equal( validate( formula ), true, formula );
+      assert.equal( compare( formula, 'e-' ), true, formula );
+    }
+  } );
+
   await t.test( 'particle coefficients', () => {
     assert.deepEqual( parse( '2e-' ), { elementCounts: {}, particleCounts: { e: 2 }, charge: -2 } );
     assert.deepEqual( parse( '3α' ), { elementCounts: {}, particleCounts: { α: 3 }, charge: 6 } );
     assert.deepEqual( parse( '2p+' ), { elementCounts: {}, particleCounts: { p: 2 }, charge: 2 } );
     assert.deepEqual( parse( '3β-' ), { elementCounts: {}, particleCounts: { β: 3 }, charge: -3 } );
     assert.deepEqual( parse( '4ν̄' ), { elementCounts: {}, particleCounts: { 'ν̄': 4 } } );
+
+    for ( const formula of [ '2e^-', '2e^-1', '2e⁻', '2e⁻¹', '2e−', '2e^−1' ] )
+      assert.deepEqual( parse( formula ), { elementCounts: {}, particleCounts: { e: 2 }, charge: -2 }, formula );
   } );
 
   await t.test( 'particle validation', () => {
@@ -198,6 +222,9 @@ test( 'validate', () => {
   assert.equal( validate( 'CuSO4·5H2O' ), true );
   assert.equal( validate( 'Fe2(S,O4)' ), true );
   assert.equal( validate( 'SO4^2-' ), true );
+
+  for ( const formula of [ 'e-', 'e^-', 'e^-1', 'e^1-', 'e⁻', 'e⁻¹', 'e¹⁻', 'e−', 'e^−', 'e^−1', 'e^1−' ] )
+    assert.equal( validate( formula ), true, formula );
 
   assert.equal( validate( '' ), false );
   assert.equal( validate( 'H0' ), false );
