@@ -1,23 +1,26 @@
 # ChemParse
 
-**ChemParse** is a lightweight TypeScript library for parsing and comparing chemical formulas.
+**ChemParse** is a lightweight TypeScript library for parsing, validating,
+and comparing chemical formulas and particle expressions.
 
-It supports all 118 IUPAC element symbols, nested groups, decimal and scientific notation,
-hydrate notation, leading coefficients, element lists, and ionic charges.
+It supports all 118 IUPAC element symbols, common subatomic particles, ionic charges,
+nested groups, decimal and scientific notation, hydrate notation, and leading coefficients.
 
 
 ## Features
 
-- Parses chemical formulas into element counts
+- Parses chemical formulas and particle expressions
 - Supports all 118 IUPAC element symbols
+- Recognizes common particles: electrons, positrons, protons, neutrons, alpha, beta, gamma, etc.
 - Handles nested parentheses, square brackets, and curly brackets
 - Supports decimal and scientific notation
 - Parses dot-separated and underscore-separated hydrate parts
 - Supports leading coefficients and hydrate multipliers
 - Accepts comma-separated element lists inside groups
 - Recognizes ionic charges in caret and Unicode superscript notation
-- Compares multiple formulas by composition and charge
-- Calculates element count and charge differences
+- Calculates total charge, including leading coefficients
+- Compares multiple formulas and particle expressions by composition and charge
+- Calculates element count, particle count, and charge differences
 - Provides TypeScript types and both named and default exports
 - Uses an iterative parser to handle nested groups
 
@@ -35,8 +38,8 @@ npm install chemparse
 
 ```js
 import ChemParse, {
-  parse, validate, compare, compareMany,
-  diff, diffMany, ELEMENT_SYMBOLS
+  ELEMENT_SYMBOLS, PARTICLE_SYMBOLS, compare, compareMany,
+  diff, diffMany, parse, validate
 } from 'chemparse';
 
 const result = parse( 'CuSO4·5H2O' );
@@ -44,6 +47,7 @@ const result = parse( 'CuSO4·5H2O' );
 console.log( result ); // { elementCounts: { H: 10, O: 9, S: 1, Cu: 1 } }
 console.log( ChemParse.compare( 'H2O', 'OH2' ) ); // true
 console.log( ELEMENT_SYMBOLS.length ); // 118
+console.log( PARTICLE_SYMBOLS ); // Supported particle symbols
 ```
 
 All functions are also available as static methods on the default `ChemParse` class.
@@ -65,7 +69,7 @@ ChemParse can also be used in browser environments through an ESM CDN import:
 
 ```html
 <script type="module">
-  import ChemParse, { parse } from 'https://cdn.jsdelivr.net/npm/chemparse@1.1.0/+esm';
+  import ChemParse, { parse } from 'https://cdn.jsdelivr.net/npm/chemparse@1.2.0/+esm';
 
   console.log( parse( 'CuSO4·5H2O' ) );
   console.log( ChemParse.validate( 'H2O' ) );
@@ -82,67 +86,82 @@ class, unless otherwise noted.
 
 ### `parse ( formula: string ) : ChemParseResult`
 
-Parses a chemical formula and returns its element counts and optional ionic charge.
+Parses a chemical formula or particle expression and returns its element counts,
+particle counts, and optional total ionic charge.
 
 ```js
 parse( 'H2O' ); // { elementCounts: { H: 2, O: 1 } }
 parse( 'SO4^2-' ); // { elementCounts: { O: 4, S: 1 }, charge: -2 }
+parse( '2SO4^2-' ); // { elementCounts: { O: 8, S: 2 }, charge: -4 }
+parse( 'e-' ); // { elementCounts: {}, particleCounts: { e: 1 }, charge: -1 }
+parse( '3α' ); // { elementCounts: {}, particleCounts: { α: 3 }, charge: 6 }
 ```
 
-Throws a `TypeError` if the input is not a string and an `Error` if the formula is invalid.
+The `charge` property represents the total charge of the parsed expression.
+Leading coefficients multiply the charge as well as the corresponding element or particle counts.
+
+Throws a `TypeError` if the input is not a string and an `Error` if the formula or expression is invalid.
 
 ### `validate ( formula: string ) : boolean`
 
-Checks whether a chemical formula is valid.
+Checks whether a chemical formula or particle expression can be parsed.
 
 ```js
 validate( 'H2O' ); // true
+validate( 'e-' ); // true
 validate( 'Xx2' ); // false
 ```
 
-Returns `false` for invalid formulas instead of throwing an error.
+Returns `false` for invalid input instead of throwing an error.
 
 ### `compare ( a: string, b: string ) : boolean`
 
-Compares two formulas for identical element counts and ionic charge.
+Compares two formulas or particle expressions for identical element counts, particle counts, and total charge.
+
 Element order and formula notation do not affect the result.
 
 ```js
 compare( 'H2O', 'OH2' ); // true
 compare( 'Ca(OH)2', 'CaO2H2' ); // true
 compare( 'NH4^+', 'NH4^-' ); // false
+compare( 'e-', 'e+' ); // false
+compare( '2e-', 'e-' ); // false
 ```
 
 ### `compareMany ( ...formulas: string[] ) : boolean`
 
-Compares two or more formulas against the first formula.
+Compares two or more formulas or particle expressions against the first input.
 
-Returns `true` only if all formulas have identical element counts and ionic charge.
+Returns `true` only if all inputs have identical element counts, particle counts, and total charge.
 
 ```js
 compareMany( 'H2O', 'OH2', 'H2O' ); // true
 compareMany( 'H2O', 'H2O2', 'H2O' ); // false
+compareMany( 'γ', 'γ', 'γ' ); // true
 ```
 
-At least two formulas must be provided.
+At least two inputs must be provided.
 
 ### `diff ( a: string, b: string ) : ChemParseResult`
 
-Calculates the difference between two formulas by subtracting the element counts
-and charge of `b` from `a`.
+Calculates the difference between two formulas or particle expressions by subtracting the
+element counts, particle counts, and total charge of `b` from `a`.
 
 ```js
 diff( 'C6H12O6', 'C1.5O3' ); // { elementCounts: { H: 12, C: 4.5, O: 3 } }
+diff( '2e-', 'e-' ); // { elementCounts: {}, particleCounts: { e: 1 }, charge: -1 }
+diff( '3α', 'α' ); // { elementCounts: {}, particleCounts: { α: 2 }, charge: 4 }
 ```
 
+The `particleCounts` property is included only if particle differences exist.
 The `charge` property is included only when the resulting charge difference is nonzero.
 
 ### `diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formula: string } )[]`
 
-Calculates the difference between the first formula and each subsequent formula.
+Calculates the difference between the first formula or particle expression and each subsequent input.
 
-Returns one result for every formula after the first.
-Each result includes the corresponding input formula in its `formula` property.
+Returns one result for every input after the first.
+Each result includes the corresponding input in its `formula` property.
 
 ```js
 diffMany( 'H2O', 'H2', 'O2' );
@@ -152,7 +171,7 @@ diffMany( 'H2O', 'H2', 'O2' );
 // ]
 ```
 
-At least two formulas must be provided.
+At least two inputs must be provided.
 
 ### `ELEMENT_SYMBOLS`
 
@@ -163,6 +182,17 @@ Available as a named export and as `ChemParse.ELEMENT_SYMBOLS`.
 ```js
 console.log( ELEMENT_SYMBOLS.includes( 'Fe' ) ); // true
 console.log( ELEMENT_SYMBOLS.length ); // 118
+```
+
+### `PARTICLE_SYMBOLS`
+
+A frozen, readonly tuple containing all supported particle symbols.
+
+Available as a named export.
+
+```js
+console.log( PARTICLE_SYMBOLS ); // [ 'e', 'p', 'n', 'α', 'β', 'γ', 'ν', 'ν̄' ]
+console.log( PARTICLE_SYMBOLS.includes( 'α' ) ); // true
 ```
 
 
@@ -232,8 +262,7 @@ parse( '5·H2O' ); // { elementCounts: { H: 10, O: 5 } }
 
 ### Comma-separated element lists
 
-Commas can separate elements inside a group.
-Commas between digits are interpreted as decimal separators.
+Commas can separate elements inside a group. Commas between digits are interpreted as decimal separators.
 
 ```text
 Fe2(S,O4)
@@ -245,6 +274,44 @@ parse( 'Al2(S,O4)3' ); // { elementCounts: { O: 12, Al: 2, S: 3 } }
 ```
 
 Comma-separated element lists are only supported inside groups.
+
+### Particles
+
+ChemParse recognizes the following particle symbols:
+
+| Particle | Symbol | Charge |
+|---|---|---:|
+| Electron | `e-` | −1 |
+| Positron | `e+` | +1 |
+| Proton | `p+` | +1 |
+| Neutron | `n` | 0 |
+| Alpha particle | `α` | +2 |
+| Beta-minus particle | `β-` | −1 |
+| Beta-plus particle | `β+` | +1 |
+| Gamma particle | `γ` | 0 |
+| Neutrino | `ν` | 0 |
+| Antineutrino | `ν̄` | 0 |
+
+Particle counts are returned separately from element counts.
+Explicit particle charges are represented by the `charge` property.
+
+```js
+parse( 'e-' ); // { elementCounts: {}, particleCounts: { e: 1 }, charge: -1 }
+parse( 'p+' ); // { elementCounts: {}, particleCounts: { p: 1 }, charge: 1 }
+parse( 'α' ); // { elementCounts: {}, particleCounts: { α: 1 }, charge: 2 }
+parse( 'β-' ); // { elementCounts: {}, particleCounts: { β: 1 }, charge: -1 }
+parse( 'ν̄' ); // { elementCounts: {}, particleCounts: { 'ν̄': 1 } }
+```
+
+Leading coefficients multiply particle counts and total charge:
+
+```js
+parse( '2e-' ); // { elementCounts: {}, particleCounts: { e: 2 }, charge: -2 }
+parse( '3α' ); // { elementCounts: {}, particleCounts: { α: 3 }, charge: 6 }
+```
+
+Particles are parsed as standalone expressions.
+They are not currently supported as members of mixed element-and-particle formulas.
 
 ### Ionic charges
 
@@ -258,6 +325,7 @@ NH4^+
 CH3COO^-
 Fe(CN)6^3-
 SO4^-2
+SO4^+2
 ```
 
 Supported Unicode superscript notation:
@@ -275,7 +343,13 @@ parse( 'SO4^2-' ); // { elementCounts: { O: 4, S: 1 }, charge: -2 }
 parse( 'NH4^+' ); // { elementCounts: { H: 4, N: 1 }, charge: 1 }
 ```
 
-Formulas without an explicit charge do not contain a `charge` property in the result.
+Leading coefficients multiply the total charge:
+
+```js
+parse( '2SO4^2-' ); // { elementCounts: { O: 8, S: 2 }, charge: -4 }
+```
+
+Formulas without an explicit or intrinsically defined charge do not contain a `charge` property in the result.
 
 
 ## Result Format
@@ -285,6 +359,7 @@ Formulas without an explicit charge do not contain a `charge` property in the re
 ```ts
 interface ChemParseResult {
   elementCounts: ElementCounts;
+  particleCounts?: ParticleCounts;
   charge?: number;
 }
 ```
@@ -295,8 +370,22 @@ interface ChemParseResult {
 type ElementCounts = Partial< Record< ElementSymbol, number > >;
 ```
 
-The result contains only elements present in the formula.
+`ParticleCounts` maps supported particle symbols to their numerical counts:
+
+```ts
+type ParticleCounts = Partial< Record< ParticleSymbol, number > >;
+```
+
+The `elementCounts` property is always present.
+It is an empty object when parsing a standalone particle expression.
+
+The `particleCounts` property is only present when the input contains particles.
+
+The `charge` property is only present when an explicit or intrinsic charge is found.
+It represents the total charge, including any leading coefficient.
+
 Element entries are ordered according to the periodic table.
+Particle entries follow the order defined in `PARTICLE_SYMBOLS`.
 
 For example:
 
@@ -312,12 +401,27 @@ parse( 'CuSO4·5H2O' );
 // }
 ```
 
-Difference results may also contain negative or zero element counts.
+Difference results may also contain negative or zero element and particle counts.
+
+
+## Parser Scope and Limitations
+
+ChemParse parses and compares formula syntax. It does not attempt to determine whether a formula
+or particle expression is chemically or physically meaningful.
+
+Some limitations of the current parser:
+
+- Particle expressions are supported as standalone inputs; combining particles and chemical
+  elements in one expression is not currently supported.
+- Ionic charges are parsed as a trailing charge for the complete input. Charges attached to
+  individual groups or individual hydrate segments are not supported.
+- The parser does not balance chemical reactions, interpret isotopic notation,
+  or validate chemical plausibility.
 
 
 ## Error Handling
 
-`parse()` throws an error when the input is invalid. Examples include:
+`parse()` throws an error when the input is syntactically invalid. Examples include:
 
 - Empty formulas
 - Unknown or incorrectly cased element symbols
@@ -338,12 +442,13 @@ Difference results may also contain negative or zero element counts.
 ChemParse includes declaration files and exports its public types:
 
 ```ts
-import type { ChemParseResult, ElementCounts, ElementSymbol } from 'chemparse';
-import ChemParse, { parse } from 'chemparse';
+import type { ChemParseResult, ElementCounts, ElementSymbol, ParticleSymbol } from 'chemparse';
+import ChemParse, { parse, ELEMENT_SYMBOLS, PARTICLE_SYMBOLS } from 'chemparse';
 
 const result: ChemParseResult = parse( 'H2O' );
-const symbols: readonly ElementSymbol[] = ChemParse.ELEMENT_SYMBOLS;
+const symbols: readonly ElementSymbol[] = ELEMENT_SYMBOLS;
 const counts: ElementCounts = result.elementCounts;
+const particles: readonly ParticleSymbol[] = PARTICLE_SYMBOLS;
 ```
 
 
