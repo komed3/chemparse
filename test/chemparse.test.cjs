@@ -140,7 +140,8 @@ test( 'parse', async t => {
     const invalid = [
       '', ' ', '5', 'H0', 'H-1', 'H1e999', 'H1e308H1e308', 'Xx', 'Foo', 'H2O!', 'H^2', 'H^0+',
       'H^999999999999999999999+', '()', '[]', '{}', 'H()', 'H[]', 'H{}', 'C([O})', 'C((O)', 'C(O))',
-      'Fe(,S)', 'Fe(S,)', 'Fe(S,,O)', 'Fe(,,S)', 'H,O', 'H2O·', '·H2O', 'H2O__NaCl', 'H2O·5'
+      'Fe(,S)', 'Fe(S,)', 'Fe(S,,O)', 'Fe(,,S)', 'H,O', 'H2O·', '·H2O', 'H2O__NaCl', 'H2O·5',
+      '1e308H^2+', '1e308α'
     ];
 
     for ( const formula of invalid ) assert.throws( () => parse( formula ), undefined, formula );

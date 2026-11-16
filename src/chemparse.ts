@@ -261,6 +261,9 @@ export function parse ( formula: string ) : ChemParseResult {
   const singleCharge = parsedCharge ?? PARTICLE_CHARGE[ particle as ParticleSymbol ];
   const charge = singleCharge === undefined ? undefined : singleCharge * ( leading?.[ 0 ] || 1 );
 
+  if ( charge !== undefined && ! Number.isFinite( charge ) )
+    throw new Error( 'Invalid total charge.' );
+
   if ( PARTICLE_SET.has( particle ) ) return {
     particleCounts: { [ particle as ParticleSymbol ]: leading?.[ 0 ] || 1 },
     elementCounts: {}, ...( charge === undefined ? {} : { charge } )
