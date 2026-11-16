@@ -250,16 +250,18 @@ export function parse ( formula: string ) : ChemParseResult {
   const normalized = normalizeFormula( formula );
   if ( ! normalized ) throw new Error( 'Formula must not be empty.' );
 
-  const mapped = PARTICLE_MAP[ normalized as ParticleSymbol ]
-    ? `${ normalized }${ PARTICLE_MAP[ normalized as ParticleSymbol ] }`
+  const leading = readNumber( normalized, 0 );
+  const particle = leading ? normalized.slice( leading[ 1 ] ) : normalized;
+  const mapped = PARTICLE_MAP[ particle as ParticleSymbol ]
+    ? `${ normalized }${ PARTICLE_MAP[ particle as ParticleSymbol ] }`
     : normalized;
 
   const [ mainFormula, charge ] = parseCharge( mapped );
-  const leading = readNumber( mainFormula, 0 );
-  const particle = leading ? mainFormula.slice( leading[ 1 ] ) : mainFormula;
+  const particleCount = readNumber( mainFormula, 0 );
+  const particleSymbol = particleCount ? mainFormula.slice( particleCount[ 1 ] ) : mainFormula;
 
-  if ( PARTICLE_SET.has( particle ) ) return {
-    particleCounts: { [ particle as ParticleSymbol ]: leading?.[ 0 ] || 1 },
+  if ( PARTICLE_SET.has( particleSymbol ) ) return {
+    particleCounts: { [ particleSymbol as ParticleSymbol ]: particleCount?.[ 0 ] || 1 },
     elementCounts: {}, ...( charge === undefined ? {} : { charge } )
   };
 
