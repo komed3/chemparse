@@ -101,9 +101,9 @@ const NORMALIZE_REGEX = /([0-9]),([0-9])/g;
 const PART_REGEX = /[·_]/;
 
 const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
+const CHANGE_REGEX = /\^(?:(\d*)([+−-])|([+−-])(\d+))$|((?:[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻]|[⁺⁻][⁰¹²³⁴⁵⁶⁷⁸⁹]+))$|([+−-])$/u;
 const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
 const SIGN_NUMBER_REGEX = /^([+-])(\d+)$/;
-const CHANGE_REGEX = /\^(?:(\d*)([+−-])|([+−-])(\d+))$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$|([+−-])$/u;
 
 
 /**
