@@ -87,7 +87,9 @@ interface ParserFrame {
 
 const ELEMENT_SET = new Set< string >( ELEMENT_SYMBOLS );
 const PARTICLE_SET = new Set< string >( PARTICLE_SYMBOLS );
+
 const PARTICLE_MAP: Partial< Record< ParticleSymbol, string > > = { 'α': '^2+' };
+
 const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
   '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
@@ -96,10 +98,12 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
 
 const WHITESPACES_REGEX = /\s+/g;
 const NORMALIZE_REGEX = /([0-9]),([0-9])/g;
-const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
-const CHANGE_REGEX = /\^(?:(\d*)([+-])|([+-])(\d+))$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$|([+-])$/u;
-const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
 const PART_REGEX = /[·_]/;
+
+const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
+const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
+const SIGN_NUMBER_REGEX = /^([+-])(\d+)$/;
+const CHANGE_REGEX = /\^(?:(\d*)([+−-])|([+−-])(\d+))$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$|([+−-])$/u;
 
 
 /**
@@ -145,10 +149,10 @@ function parseCharge ( formula: string ) : [ string, number | undefined ] {
   const match = formula.match( CHANGE_REGEX );
   if ( ! match ) return [ formula, undefined ];
 
-  const normalized = match[ 6 ] !== undefined ? match[ 6 ]
+  const normalized = ( match[ 6 ] !== undefined ? match[ 6 ]
     : match[ 5 ] !== undefined ? Array.from( match[ 5 ], c => SUPERSCRIPT_MAP[ c ] ).join( '' )
       : match[ 3 ] !== undefined ? `${ match[ 4 ] }${ match[ 3 ] }`
-        : `${ match[ 1 ] }${ match[ 2 ] }`;
+        : `${ match[ 1 ] }${ match[ 2 ] }` ).replace( '−', '-' ).replace( SIGN_NUMBER_REGEX, '$2$1' );
 
   const parsed = normalized.match( NUMBER_SIGN_REGEX );
   if ( ! parsed ) throw new Error( 'Invalid ionic charge.' );
