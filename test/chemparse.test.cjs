@@ -136,6 +136,44 @@ test( 'parse', async t => {
 } );
 
 
+test( 'particles', async t => {
+  await t.test( 'particle symbols and charges', () => {
+    assert.deepEqual( parse( 'e-' ), { elementCounts: {}, particleCounts: { e: 1 }, charge: -1 } );
+    assert.deepEqual( parse( 'e+' ), { elementCounts: {}, particleCounts: { e: 1 }, charge: 1 } );
+    assert.deepEqual( parse( 'p+' ), { elementCounts: {}, particleCounts: { p: 1 }, charge: 1 } );
+    assert.deepEqual( parse( 'n' ), { elementCounts: {}, particleCounts: { n: 1 } } );
+    assert.deepEqual( parse( 'α' ), { elementCounts: {}, particleCounts: { α: 1 }, charge: 2 } );
+    assert.deepEqual( parse( 'β-' ), { elementCounts: {}, particleCounts: { β: 1 }, charge: -1 } );
+    assert.deepEqual( parse( 'β+' ), { elementCounts: {}, particleCounts: { β: 1 }, charge: 1 } );
+    assert.deepEqual( parse( 'γ' ), { elementCounts: {}, particleCounts: { γ: 1 } } );
+    assert.deepEqual( parse( 'ν' ), { elementCounts: {}, particleCounts: { ν: 1 } } );
+    assert.deepEqual( parse( 'ν̄' ), { elementCounts: {}, particleCounts: { 'ν̄': 1 } } );
+  } );
+
+  await t.test( 'particle coefficients', () => {
+    assert.deepEqual( parse( '2e-' ), { elementCounts: {}, particleCounts: { e: 2 }, charge: -1 } );
+    assert.deepEqual( parse( '3α' ), { elementCounts: {}, particleCounts: { α: 3 }, charge: 2 } );
+  } );
+
+  await t.test( 'particle validation', () => {
+    for ( const particle of [ 'e-', 'e+', 'p+', 'n', 'α', 'β-', 'β+', 'γ', 'ν', 'ν̄' ] )
+      assert.equal( validate( particle ), true );
+  } );
+
+  await t.test( 'particle comparison', () => {
+    assert.equal( compare( 'e-', 'e-' ), true );
+    assert.equal( compare( 'e-', 'e+' ), false );
+    assert.equal( compare( 'e-', 'β-' ), false );
+    assert.equal( compare( 'α', 'α' ), true );
+    assert.equal( compareMany( 'γ', 'γ', 'γ' ), true );
+  } );
+
+  await t.test( 'particle differences', () => {
+    assert.deepEqual( diff( 'α', 'n' ), { elementCounts: {}, particleCounts: { n: -1, α: 1 }, charge: 2 } );
+  } );
+} );
+
+
 test( 'validate', () => {
   assert.equal( validate( 'H2O' ), true );
   assert.equal( validate( 'CuSO4·5H2O' ), true );
