@@ -44,7 +44,7 @@ export const ELEMENT_SYMBOLS = Object.freeze( [
 
 /** All supported particle symbols. */
 export const PARTICLE_SYMBOLS = Object.freeze( [
-  'e', 'p', 'n', 'α', 'β', 'γ', 'ν'
+  'e', 'p', 'n', 'α', 'β', 'γ', 'ν', 'ν̄'
 ] as const );
 
 
