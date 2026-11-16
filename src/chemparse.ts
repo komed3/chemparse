@@ -19,7 +19,7 @@
  *
  * @author Paul Köhler (komed3)
  * @license MIT
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 'use strict';
