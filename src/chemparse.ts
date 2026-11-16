@@ -4,10 +4,10 @@
  *
  * Handles nested parentheses, decimal and scientific notation,
  * dot-separated parts (hydrates), leading coefficients, element lists
- * with commas, and ionic charges (caret and superscript notation).
+ * with commas, ionic charges (caret and superscript notation), and particles.
  *
  * Supported symbols include all IUPAC element symbols and
- * common particle symbols (e, p, n, α, β, γ, ν).
+ * common particle symbols (e, p, n, α, β, γ, ν, ν̄).
  *
  * Methods:
  *  - parse ( formula: string ) : ChemParseResult
@@ -61,11 +61,11 @@ export type ElementCounts = Partial< Record< ElementSymbol, number > >;
 export type ParticleCounts = Partial< Record< ParticleSymbol, number > >;
 
 /**
- * Result of parsing a chemical formula.
+ * Result of parsing a chemical formula or particle expression.
  *
  * @property elementCounts Element counts indexed by their symbols.
  * @property particleCounts (optional) Particle counts indexed by their symbols.
- * @property charge (optional) Ionic charge. Positive for cations, negative for anions.
+ * @property charge (optional) Total ionic charge, including any leading coefficient.
  */
 export interface ChemParseResult {
   elementCounts: ElementCounts;
@@ -237,10 +237,12 @@ function normalizeFormula ( formula: string ) : string {
 
 
 /**
- * Parses a chemical formula into its element counts and optional ionic charge.
+ * Parses a chemical formula or particle expression.
  *
- * @param formula The chemical formula to parse.
- * @returns The parsed element counts and optional ionic charge.
+ * Leading coefficients multiply element counts, particle counts and the total charge.
+ *
+ * @param formula The chemical formula or particle expression.
+ * @returns The parsed element counts, particle counts and optional total charge.
  * @throws {TypeError} If the formula is not a string.
  * @throws {Error} If the formula or any of its segments is invalid.
  */
@@ -302,10 +304,10 @@ export function parse ( formula: string ) : ChemParseResult {
 
 
 /**
- * Checks whether a chemical formula is valid.
+ * Checks whether a chemical formula or particle expression is valid.
  *
- * @param formula The chemical formula to validate.
- * @returns True if the formula is valid, otherwise false.
+ * @param formula The chemical formula or particle expression.
+ * @returns True if the input can be parsed, otherwise false.
  */
 export function validate ( formula: string ) : boolean {
   try { parse( formula ); return true }
@@ -314,10 +316,12 @@ export function validate ( formula: string ) : boolean {
 
 
 /**
- * Compares two or more chemical formulas for identical composition and charge.
+ * Compares two or more chemical formulas or particle expressions.
  *
- * @param formulas The chemical formulas to compare (at least two).
- * @returns True if all formulas have identical element counts and charge.
+ * Compares element counts, particle counts and total charge.
+ *
+ * @param formulas The formulas or particle expressions to compare (at least two).
+ * @returns True if all inputs have identical composition and total charge.
  * @throws {Error} If fewer than two formulas are provided.
  */
 export function compareMany ( ...formulas: string[] ) : boolean {
@@ -343,11 +347,11 @@ export function compareMany ( ...formulas: string[] ) : boolean {
 
 
 /**
- * Compares two chemical formulas for identical composition and charge.
+ * Compares two chemical formulas or particle expressions.
  *
- * @param a The first chemical formula.
- * @param b The second chemical formula.
- * @returns True if both formulas have identical element counts and charge.
+ * @param a The first formula or particle expression.
+ * @param b The second formula or particle expression.
+ * @returns True if both inputs have identical composition and total charge.
  */
 export function compare ( a: string, b: string ) : boolean {
   return compareMany( a, b );
@@ -355,10 +359,10 @@ export function compare ( a: string, b: string ) : boolean {
 
 
 /**
- * Calculates the difference between the first formula and each subsequent formula.
+ * Calculates the differences between the first input and each subsequent input.
  *
- * @param formulas The chemical formulas to compare (at least two).
- * @returns The element count and charge differences for each subsequent formula.
+ * @param formulas The formulas or particle expressions to compare (at least two).
+ * @returns Element count, particle count and total charge differences for each input.
  * @throws {Error} If fewer than two formulas are provided.
  */
 export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formula: string } )[] {
@@ -394,11 +398,11 @@ export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formu
 
 
 /**
- * Calculates the difference between two chemical formulas.
+ * Calculates the difference between two formulas or particle expressions.
  *
- * @param a The first chemical formula.
- * @param b The second chemical formula.
- * @returns The element count and charge differences.
+ * @param a The first formula or particle expression.
+ * @param b The second formula or particle expression.
+ * @returns Element count, particle count and total charge differences.
  */
 export function diff ( a: string, b: string ) : ChemParseResult {
   const [ { elementCounts, particleCounts, charge } ] = diffMany( a, b );
@@ -411,7 +415,7 @@ export function diff ( a: string, b: string ) : ChemParseResult {
 }
 
 
-/** Provides a static API for parsing and comparing chemical formulas. */
+/** Provides a static API for parsing and comparing chemical formulas and particles. */
 export default class ChemParse {
   /** All supported chemical element symbols. */
   public static readonly ELEMENT_SYMBOLS = ELEMENT_SYMBOLS;
