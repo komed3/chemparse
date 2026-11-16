@@ -51,8 +51,14 @@ export const PARTICLE_SYMBOLS = Object.freeze( [
 /** A supported chemical element symbol. */
 export type ElementSymbol = typeof ELEMENT_SYMBOLS[ number ];
 
+/** A supported particle symbol. */
+export type ParticleSymbol = typeof PARTICLE_SYMBOLS[ number ];
+
 /** Element counts indexed by their chemical symbols. */
 export type ElementCounts = Partial< Record< ElementSymbol, number > >;
+
+/** Particle counts indexed by their symbols. */
+export type ParticleCounts = Partial< Record< ParticleSymbol, number > >;
 
 /**
  * Result of parsing a chemical formula.
