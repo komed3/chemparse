@@ -41,6 +41,7 @@ test( 'exports', async t => {
     assert.ok( Object.isFrozen( ELEMENT_SYMBOLS ) );
     assert.ok( Object.isFrozen( PARTICLE_SYMBOLS ) );
     assert.equal( ChemParse.ELEMENT_SYMBOLS, ELEMENT_SYMBOLS );
+    assert.equal( ChemParse.PARTICLE_SYMBOLS, PARTICLE_SYMBOLS );
     assert.equal( ELEMENT_SYMBOLS.length, 118 );
     assert.equal( PARTICLE_SYMBOLS.length, 8 );
   } );

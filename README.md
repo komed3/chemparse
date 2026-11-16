@@ -281,12 +281,12 @@ ChemParse recognizes the following particle symbols:
 
 | Particle | Symbol | Charge |
 |---|---|---:|
-| Electron | `e-` | −1 |
+| Electron | `e-` | -1 |
 | Positron | `e+` | +1 |
 | Proton | `p+` | +1 |
 | Neutron | `n` | 0 |
 | Alpha particle | `α` | +2 |
-| Beta-minus particle | `β-` | −1 |
+| Beta-minus particle | `β-` | -1 |
 | Beta-plus particle | `β+` | +1 |
 | Gamma particle | `γ` | 0 |
 | Neutrino | `ν` | 0 |
@@ -443,7 +443,7 @@ ChemParse includes declaration files and exports its public types:
 
 ```ts
 import type { ChemParseResult, ElementCounts, ElementSymbol, ParticleSymbol } from 'chemparse';
-import ChemParse, { parse, ELEMENT_SYMBOLS, PARTICLE_SYMBOLS } from 'chemparse';
+import ChemParse, { ELEMENT_SYMBOLS, PARTICLE_SYMBOLS, parse } from 'chemparse';
 
 const result: ChemParseResult = parse( 'H2O' );
 const symbols: readonly ElementSymbol[] = ELEMENT_SYMBOLS;
