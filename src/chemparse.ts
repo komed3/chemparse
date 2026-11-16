@@ -64,10 +64,12 @@ export type ParticleCounts = Partial< Record< ParticleSymbol, number > >;
  * Result of parsing a chemical formula.
  *
  * @property elementCounts Element counts indexed by their symbols.
+ * @property particleCounts (optional) Particle counts indexed by their symbols.
  * @property charge (optional) Ionic charge. Positive for cations, negative for anions.
  */
 export interface ChemParseResult {
   elementCounts: ElementCounts;
+  particleCounts?: ParticleCounts;
   charge?: number;
 }
 
