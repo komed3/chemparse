@@ -3,9 +3,12 @@
 
 const assert = require( 'node:assert/strict' );
 const test = require( 'node:test' );
-
 const ChemParse = require( '../dist/chemparse.cjs' ).default;
-const { ELEMENT_SYMBOLS, parse, validate, compare, compareMany, diff, diffMany } = require( '../dist/chemparse.cjs' );
+
+const {
+  ELEMENT_SYMBOLS, PARTICLE_SYMBOLS,
+  parse, validate, compare, compareMany, diff, diffMany
+} = require( '../dist/chemparse.cjs' );
 
 
 test( 'exports', async t => {
@@ -31,12 +34,16 @@ test( 'exports', async t => {
     assert.equal( typeof module.diff, 'function' );
     assert.equal( typeof module.diffMany, 'function' );
     assert.ok( Array.isArray( module.ELEMENT_SYMBOLS ) );
+    assert.ok( Array.isArray( module.PARTICLE_SYMBOLS ) );
   } );
 
-  await t.test( 'element symbols are immutable', () => {
+  await t.test( 'element and particle symbols are immutable', () => {
     assert.ok( Object.isFrozen( ELEMENT_SYMBOLS ) );
+    assert.ok( Object.isFrozen( PARTICLE_SYMBOLS ) );
     assert.equal( ChemParse.ELEMENT_SYMBOLS, ELEMENT_SYMBOLS );
+    assert.equal( ChemParse.PARTICLE_SYMBOLS, PARTICLE_SYMBOLS );
     assert.equal( ELEMENT_SYMBOLS.length, 118 );
+    assert.equal( PARTICLE_SYMBOLS.length, 8 );
   } );
 } );
 
@@ -117,6 +124,11 @@ test( 'parse', async t => {
     assert.deepEqual( parse( 'NH4⁺' ), { elementCounts: { H: 4, N: 1 }, charge: 1 } );
   } );
 
+  await t.test( 'charge coefficients', () => {
+    assert.deepEqual( parse( '2SO4^2-' ), { elementCounts: { O: 8, S: 2 }, charge: -4 } );
+    assert.deepEqual( parse( '2NH4^+' ), { elementCounts: { H: 8, N: 2 }, charge: 2 } );
+  } );
+
   await t.test( 'invalid formulas', () => {
     const invalid = [
       '', ' ', '5', 'H0', 'H-1', 'H1e999', 'H1e308H1e308', 'Xx', 'Foo', 'H2O!', 'H^2', 'H^0+',
@@ -132,6 +144,51 @@ test( 'parse', async t => {
     assert.throws( () => parse( undefined ), TypeError );
     assert.throws( () => parse( 123 ), TypeError );
     assert.throws( () => parse( {} ), TypeError );
+  } );
+} );
+
+
+test( 'particles', async t => {
+  await t.test( 'particle symbols and charges', () => {
+    assert.deepEqual( parse( 'e-' ), { elementCounts: {}, particleCounts: { e: 1 }, charge: -1 } );
+    assert.deepEqual( parse( 'e+' ), { elementCounts: {}, particleCounts: { e: 1 }, charge: 1 } );
+    assert.deepEqual( parse( 'p+' ), { elementCounts: {}, particleCounts: { p: 1 }, charge: 1 } );
+    assert.deepEqual( parse( 'n' ), { elementCounts: {}, particleCounts: { n: 1 } } );
+    assert.deepEqual( parse( 'α' ), { elementCounts: {}, particleCounts: { α: 1 }, charge: 2 } );
+    assert.deepEqual( parse( 'β-' ), { elementCounts: {}, particleCounts: { β: 1 }, charge: -1 } );
+    assert.deepEqual( parse( 'β+' ), { elementCounts: {}, particleCounts: { β: 1 }, charge: 1 } );
+    assert.deepEqual( parse( 'γ' ), { elementCounts: {}, particleCounts: { γ: 1 } } );
+    assert.deepEqual( parse( 'ν' ), { elementCounts: {}, particleCounts: { ν: 1 } } );
+    assert.deepEqual( parse( 'ν̄' ), { elementCounts: {}, particleCounts: { 'ν̄': 1 } } );
+  } );
+
+  await t.test( 'particle coefficients', () => {
+    assert.deepEqual( parse( '2e-' ), { elementCounts: {}, particleCounts: { e: 2 }, charge: -2 } );
+    assert.deepEqual( parse( '3α' ), { elementCounts: {}, particleCounts: { α: 3 }, charge: 6 } );
+    assert.deepEqual( parse( '2p+' ), { elementCounts: {}, particleCounts: { p: 2 }, charge: 2 } );
+    assert.deepEqual( parse( '3β-' ), { elementCounts: {}, particleCounts: { β: 3 }, charge: -3 } );
+    assert.deepEqual( parse( '4ν̄' ), { elementCounts: {}, particleCounts: { 'ν̄': 4 } } );
+  } );
+
+  await t.test( 'particle validation', () => {
+    for ( const particle of [ 'e-', 'e+', 'p+', 'n', 'α', 'β-', 'β+', 'γ', 'ν', 'ν̄' ] )
+      assert.equal( validate( particle ), true );
+  } );
+
+  await t.test( 'particle comparison', () => {
+    assert.equal( compare( 'e-', 'e-' ), true );
+    assert.equal( compare( 'e-', 'e+' ), false );
+    assert.equal( compare( 'e-', 'β-' ), false );
+    assert.equal( compare( 'α', 'α' ), true );
+    assert.equal( compareMany( 'γ', 'γ', 'γ' ), true );
+    assert.equal( compare( 'ν', 'ν̄' ), false );
+    assert.equal( compare( '2e-', 'e-' ), false );
+  } );
+
+  await t.test( 'particle differences', () => {
+    assert.deepEqual( diff( 'α', 'n' ), { elementCounts: {}, particleCounts: { n: -1, α: 1 }, charge: 2 } );
+    assert.deepEqual( diff( '2e-', 'e-' ), { elementCounts: {}, particleCounts: { e: 1 }, charge: -1 } );
+    assert.deepEqual( diff( '3α', 'α' ), { elementCounts: {}, particleCounts: { α: 2 }, charge: 4 } );
   } );
 } );
 
@@ -163,6 +220,7 @@ test( 'compare', async t => {
     assert.equal( compare( 'H2O', 'H2' ), false );
     assert.equal( compare( 'NaCl', 'KCl' ), false );
     assert.equal( compare( 'NH4^+', 'NH4^-' ), false );
+    assert.equal( compare( '2SO4^2-', 'SO4^2-' ), false );
   } );
 
   await t.test( 'compareMany', () => {
@@ -192,6 +250,7 @@ test( 'diff', async t => {
   await t.test( 'charge differences', () => {
     assert.deepEqual( diff( 'Na^+', 'Cl^-' ), { elementCounts: { Na: 1, Cl: -1 }, charge: 2 } );
     assert.deepEqual( diff( 'SO4^2-', 'SO4^-' ), { elementCounts: { O: 0, S: 0 }, charge: -1 } );
+    assert.deepEqual( diff( '2SO4^2-', 'SO4^2-' ), { elementCounts: { O: 4, S: 1 }, charge: -2 } );
   } );
 
   await t.test( 'diffMany', () => {

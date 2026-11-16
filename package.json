@@ -1,19 +1,24 @@
 {
   "name": "chemparse",
-  "description": "Chemical formula parser with nested groups, hydrates, ionic charges, and composition comparison.",
+  "description": "TypeScript parser for chemical formulas and particle expressions with ionic charges, composition comparison, and differences.",
   "license": "MIT",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "komed3 (Paul Köhler)",
     "email": "webmaster@komed3.de",
     "url": "https://komed3.de"
   },
-  "homepage": "https://github.com/komed3/chemparse",
+  "homepage": "https://komed3.github.io/chemistry",
   "keywords": [
     "chemistry",
-    "chemistry-formulas",
+    "chemical-formula",
     "formula-parser",
-    "formula",
+    "chemical-parser",
+    "particle-physics",
+    "particle-parser",
+    "subatomic-particles",
+    "ionic-charge",
+    "stoichiometry",
     "parser"
   ],
   "repository": {
