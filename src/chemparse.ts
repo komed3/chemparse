@@ -88,7 +88,7 @@ interface ParserFrame {
 const ELEMENT_SET = new Set< string >( ELEMENT_SYMBOLS );
 const PARTICLE_SET = new Set< string >( PARTICLE_SYMBOLS );
 
-const PARTICLE_MAP: Partial< Record< ParticleSymbol, string > > = { 'α': '^2+' };
+const PARTICLE_CHARGE: Partial< Record< ParticleSymbol, number > > = { 'α': 2 };
 
 const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
@@ -101,9 +101,8 @@ const NORMALIZE_REGEX = /([0-9]),([0-9])/g;
 const PART_REGEX = /[·_]/;
 
 const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
-const CHANGE_REGEX = /\^(?:(\d*)([+−-])|([+−-])(\d+))$|((?:[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻]|[⁺⁻][⁰¹²³⁴⁵⁶⁷⁸⁹]+))$|([+−-])$/u;
-const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
-const SIGN_NUMBER_REGEX = /^([+-])(\d+)$/;
+const CHARGE_REGEX = /\^(?:(\d*)([+−-])|([+−-])(\d+))$|((?:[⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻]|[⁺⁻][⁰¹²³⁴⁵⁶⁷⁸⁹]+))$|([+−-])$/u;
+const CHARGE_VALUE_REGEX = /^(?:(\d*)([+-])|([+-])(\d+))$/;
 
 
 /**
@@ -146,21 +145,21 @@ function mergeCounts ( target: ElementCounts, source: ElementCounts, multiplier 
  * @throws {Error} If the ionic charge is invalid.
  */
 function parseCharge ( formula: string ) : [ string, number | undefined ] {
-  const match = formula.match( CHANGE_REGEX );
+  const match = formula.match( CHARGE_REGEX );
   if ( ! match ) return [ formula, undefined ];
 
   const normalized = ( match[ 6 ] !== undefined ? match[ 6 ]
     : match[ 5 ] !== undefined ? Array.from( match[ 5 ], c => SUPERSCRIPT_MAP[ c ] ).join( '' )
       : match[ 3 ] !== undefined ? `${ match[ 4 ] }${ match[ 3 ] }`
-        : `${ match[ 1 ] }${ match[ 2 ] }` ).replace( '−', '-' ).replace( SIGN_NUMBER_REGEX, '$2$1' );
+        : `${ match[ 1 ] }${ match[ 2 ] }` ).replace( '−', '-' );
 
-  const parsed = normalized.match( NUMBER_SIGN_REGEX );
+  const parsed = normalized.match( CHARGE_VALUE_REGEX );
   if ( ! parsed ) throw new Error( 'Invalid ionic charge.' );
 
-  const value = Number( parsed[ 1 ] || 1 );
+  const value = Number( parsed[ 1 ] || parsed[ 4 ] || 1 );
   if ( ! Number.isSafeInteger( value ) || value <= 0 ) throw new Error( 'Invalid ionic charge.' );
 
-  return [ formula.slice( 0, match.index ), parsed[ 2 ] === '+' ? value : -value ];
+  return [ formula.slice( 0, match.index ), ( parsed[ 2 ] || parsed[ 3 ] ) === '+' ? value : -value ];
 }
 
 /**
@@ -259,11 +258,7 @@ export function parse ( formula: string ) : ChemParseResult {
   const [ mainFormula, parsedCharge ] = parseCharge( normalized );
   const leading = readNumber( mainFormula, 0 );
   const particle = leading ? mainFormula.slice( leading[ 1 ] ) : mainFormula;
-  const intrinsicCharge = PARTICLE_MAP[ particle as ParticleSymbol ];
-  const singleCharge = parsedCharge ?? ( intrinsicCharge
-    ? parseCharge( `${ mainFormula }${ intrinsicCharge }` )[ 1 ]
-    : undefined );
-
+  const singleCharge = parsedCharge ?? PARTICLE_CHARGE[ particle as ParticleSymbol ];
   const charge = singleCharge === undefined ? undefined : singleCharge * ( leading?.[ 0 ] || 1 );
 
   if ( PARTICLE_SET.has( particle ) ) return {
