@@ -69,7 +69,7 @@ ChemParse can also be used in browser environments through an ESM CDN import:
 
 ```html
 <script type="module">
-  import ChemParse, { parse } from 'https://cdn.jsdelivr.net/npm/chemparse@1.2.0/+esm';
+  import ChemParse, { parse } from 'https://cdn.jsdelivr.net/npm/chemparse@1.2.1/+esm';
 
   console.log( parse( 'CuSO4·5H2O' ) );
   console.log( ChemParse.validate( 'H2O' ) );
