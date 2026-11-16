@@ -42,6 +42,12 @@ export const ELEMENT_SYMBOLS = Object.freeze( [
 ] as const );
 
 
+/** All supported particle symbols. */
+export const PARTICLE_SYMBOLS = Object.freeze( [
+  'e', 'p', 'n', 'α', 'β', 'γ', 'ν'
+] as const );
+
+
 /** A supported chemical element symbol. */
 export type ElementSymbol = typeof ELEMENT_SYMBOLS[ number ];
 
