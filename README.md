@@ -351,6 +351,8 @@ parse( '2SO4^2-' ); // { elementCounts: { O: 8, S: 2 }, charge: -4 }
 
 Formulas without an explicit or intrinsically defined charge do not contain a `charge` property in the result.
 
+Both the caret and Unicode superscript notation support the charge sign before or after the magnitude.
+
 
 ## Result Format
 
