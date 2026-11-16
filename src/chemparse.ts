@@ -330,6 +330,10 @@ export function compareMany ( ...formulas: string[] ) : boolean {
     for ( const el of ELEMENT_SYMBOLS )
       if ( ( first.elementCounts[ el ] || 0 ) !== ( current.elementCounts[ el ] || 0 ) )
         return false;
+
+    for ( const p of PARTICLE_SYMBOLS )
+      if ( ( first.particleCounts?.[ p ] || 0 ) !== ( current.particleCounts?.[ p ] || 0 ) )
+        return false;
   }
 
   return true;
@@ -363,16 +367,24 @@ export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formu
 
   for ( let i = 1; i < formulas.length; i++ ) {
     const current = parse( formulas[ i ] ), currentCounts = current.elementCounts;
-    const elementCounts: ElementCounts = {};
+    const elementCounts: ElementCounts = {}, particleCounts: ParticleCounts = {};
 
     for ( const el of ELEMENT_SYMBOLS )
       if ( el in firstCounts || el in currentCounts )
         elementCounts[ el ] = ( firstCounts[ el ] || 0 ) - ( currentCounts[ el ] || 0 );
 
+    for ( const p of PARTICLE_SYMBOLS )
+      if ( p in ( first.particleCounts || {} ) || p in ( current.particleCounts || {} ) )
+        particleCounts[ p ] = ( first.particleCounts?.[ p ] || 0 ) -
+          ( current.particleCounts?.[ p ] || 0 );
+
     const charge = ( first.charge || 0 ) - ( current.charge || 0 );
-    results.push( charge === 0 ? { formula: formulas[ i ], elementCounts } : {
-      formula: formulas[ i ], elementCounts, charge
-    } );
+    const result: ChemParseResult & { formula: string } = { formula: formulas[ i ], elementCounts };
+
+    if ( Object.keys( particleCounts ).length ) result.particleCounts = particleCounts;
+    if ( charge !== 0 ) result.charge = charge;
+
+    results.push( result );
   }
 
   return results;
@@ -387,8 +399,13 @@ export function diffMany ( ...formulas: string[] ) : ( ChemParseResult & { formu
  * @returns The element count and charge differences.
  */
 export function diff ( a: string, b: string ) : ChemParseResult {
-  const [ { elementCounts, charge } ] = diffMany( a, b );
-  return charge === undefined ? { elementCounts } : { elementCounts, charge };
+  const [ { elementCounts, particleCounts, charge } ] = diffMany( a, b );
+  const result: ChemParseResult = { elementCounts };
+
+  if ( particleCounts ) result.particleCounts = particleCounts;
+  if ( charge !== undefined ) result.charge = charge;
+
+  return result;
 }
 
 
