@@ -86,6 +86,8 @@ interface ParserFrame {
 // Internal lookup and parsing constants
 
 const ELEMENT_SET = new Set< string >( ELEMENT_SYMBOLS );
+const PARTICLE_SET = new Set< string >( PARTICLE_SYMBOLS );
+const PARTICLE_MAP: Partial< Record< ParticleSymbol, string > > = { 'α': '^2+' };
 const SUPERSCRIPT_MAP: Record< string, string > = {
   '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
   '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
@@ -95,7 +97,7 @@ const SUPERSCRIPT_MAP: Record< string, string > = {
 const WHITESPACES_REGEX = /\s+/g;
 const NORMALIZE_REGEX = /([0-9]),([0-9])/g;
 const NUMBER_REGEX = /^(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?/;
-const CHANGE_REGEX = /\^(?:(\d*)([+-])|([+-])(\d+))$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$/u;
+const CHANGE_REGEX = /\^(?:(\d*)([+-])|([+-])(\d+))$|([⁰¹²³⁴⁵⁶⁷⁸⁹]*[⁺⁻])$|([+-])$/u;
 const NUMBER_SIGN_REGEX = /^(\d*)([+-])$/;
 const PART_REGEX = /[·_]/;
 
