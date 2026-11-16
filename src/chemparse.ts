@@ -6,6 +6,9 @@
  * dot-separated parts (hydrates), leading coefficients, element lists
  * with commas, and ionic charges (caret and superscript notation).
  *
+ * Supported symbols include all IUPAC element symbols and
+ * common particle symbols (e, p, n, α, β, γ, ν).
+ *
  * Methods:
  *  - parse ( formula: string ) : ChemParseResult
  *  - validate ( formula: string ) : boolean
