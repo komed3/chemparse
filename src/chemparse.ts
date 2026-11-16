@@ -254,9 +254,11 @@ export function parse ( formula: string ) : ChemParseResult {
   const leading = readNumber( mainFormula, 0 );
   const particle = leading ? mainFormula.slice( leading[ 1 ] ) : mainFormula;
   const intrinsicCharge = PARTICLE_MAP[ particle as ParticleSymbol ];
-  const charge = parsedCharge ?? ( intrinsicCharge
+  const singleCharge = parsedCharge ?? ( intrinsicCharge
     ? parseCharge( `${ mainFormula }${ intrinsicCharge }` )[ 1 ]
     : undefined );
+
+  const charge = singleCharge === undefined ? undefined : singleCharge * ( leading?.[ 0 ] || 1 );
 
   if ( PARTICLE_SET.has( particle ) ) return {
     particleCounts: { [ particle as ParticleSymbol ]: leading?.[ 0 ] || 1 },
