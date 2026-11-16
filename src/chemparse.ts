@@ -145,11 +145,10 @@ function parseCharge ( formula: string ) : [ string, number | undefined ] {
   const match = formula.match( CHANGE_REGEX );
   if ( ! match ) return [ formula, undefined ];
 
-  const normalized = match[ 5 ] !== undefined
-    ? Array.from( match[ 5 ], c => SUPERSCRIPT_MAP[ c ] ).join( '' )
-    : match[ 3 ] !== undefined
-      ? `${ match[ 4 ] }${ match[ 3 ] }`
-      : `${ match[ 1 ] }${ match[ 2 ] }`;
+  const normalized = match[ 7 ] !== undefined ? match[ 7 ]
+    : match[ 5 ] !== undefined ? Array.from( match[ 5 ], c => SUPERSCRIPT_MAP[ c ] ).join( '' )
+      : match[ 3 ] !== undefined ? `${ match[ 4 ] }${ match[ 3 ] }`
+        : `${ match[ 1 ] }${ match[ 2 ] }`;
 
   const parsed = normalized.match( NUMBER_SIGN_REGEX );
   if ( ! parsed ) throw new Error( 'Invalid ionic charge.' );
